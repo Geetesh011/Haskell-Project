@@ -1,0 +1,17 @@
+.git
+.venv
+venv
+__pycache__
+*.pyc
+.stack-work
+dist
+dist-newstyle
+.ghc.environment.*
+cvi-backend/dist
+cvi-backend/.stack-work
+node_modules
+.DS_Store
+.vscode
+.idea
+Dockerfile
+.dockerignore

@@ -85,15 +85,19 @@ def fetch_real_data(location_name: str) -> dict:
 
 
 def find_haskell_binary() -> str:
-    """Find the compiled Haskell executable using Stack."""
-    # 1. Direct path check for Render build environment
-    global_path = "/usr/local/bin/cvi-backend"
-    if os.path.exists(global_path):
-        return global_path
+    """Find the compiled Haskell executable."""
+    # 1. Check fixed production path (from Docker multi-stage build)
+    prod_path = "/usr/local/bin/cvi-backend"
+    if os.path.exists(prod_path):
+        return prod_path
 
-    # 2. Fallback to using stack exec with 'where' (Windows) or 'which' (Linux)
+    # 2. Check local relative paths (development)
+    # 3. Fallback to using stack exec with 'where' (Windows) or 'which' (Linux)
     shell_cmd = "where" if os.name == "nt" else "which"
     try:
+        # Check if stack is available before trying to call it
+        subprocess.run(["stack", "--version"], capture_output=True, check=True)
+        
         result = subprocess.run(
             ["stack", "exec", "--", shell_cmd, "cvi-backend"],
             cwd=os.path.join(os.path.dirname(__file__), "..", "cvi-backend"),
@@ -103,7 +107,8 @@ def find_haskell_binary() -> str:
         )
         # where tool on Windows can return multiple lines
         return result.stdout.strip().split('\n')[0]
-    except subprocess.CalledProcessError:
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        # Last resort: check if it's in the current path
         return None
 
 

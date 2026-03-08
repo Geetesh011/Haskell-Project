@@ -1,36 +1,42 @@
-# Stage 1: Build the Haskell Environment & Python App
-FROM haskell:9.6
+# Stage 1: Build Haskell Binary
+FROM haskell:9.6.6 as builder
 
-# Install Python 3 and pip
+WORKDIR /build
+# Copy only the haskell part first for better caching
+COPY cvi-backend /build/cvi-backend
+WORKDIR /build/cvi-backend
+
+# Build the binary
+# --system-ghc ensures it uses the one in the image (9.6.6)
+# matches lts-22.43 exactly
+RUN stack build --system-ghc --copy-bins --local-bin-path /usr/local/bin
+
+# Stage 2: Final Runtime Image
+FROM python:3.11-slim
+
+# Install system dependencies for the Haskell binary
 RUN apt-get update && apt-get install -y \
-    python3 \
-    python3-pip \
-    python3-venv \
+    libgmp10 \
+    libffi8 \
+    libnuma1 \
     && rm -rf /var/lib/apt/lists/*
 
-# Create and activate a virtual environment
-ENV VIRTUAL_ENV=/opt/venv
-RUN python3 -m venv $VIRTUAL_ENV
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"
-
-# Set up working directory
 WORKDIR /app
 
-# Copy the code
-COPY . /app
+# Copy the compiled Haskell binary from builder
+COPY --from=builder /usr/local/bin/cvi-backend /usr/local/bin/cvi-backend
 
-# Install Haskell dependencies and build
-WORKDIR /app/cvi-backend
-RUN stack setup && stack build --copy-bins --local-bin-path /usr/local/bin
+# Copy python project parts
+COPY requirements.txt /app/requirements.txt
+COPY python_runner /app/python_runner
+COPY webapp /app/webapp
 
-# Install Python dependencies
-WORKDIR /app
-RUN pip3 install -r requirements.txt
+# Install python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Run the app via Gunicorn
-WORKDIR /app/webapp
-# Render sets the PORT environment variable dynamically
+# Environment variables
 ENV PORT=5000
 EXPOSE $PORT
 
+WORKDIR /app/webapp
 CMD ["sh", "-c", "gunicorn -b 0.0.0.0:$PORT app:app"]
