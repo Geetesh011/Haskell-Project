@@ -21,7 +21,7 @@ COPY . /app
 
 # Install Haskell dependencies and build
 WORKDIR /app/cvi-backend
-RUN stack build --system-ghc
+RUN stack setup && stack build --copy-bins --local-bin-path /usr/local/bin
 
 # Install Python dependencies
 WORKDIR /app

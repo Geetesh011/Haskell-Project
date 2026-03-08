@@ -86,15 +86,23 @@ def fetch_real_data(location_name: str) -> dict:
 
 def find_haskell_binary() -> str:
     """Find the compiled Haskell executable using Stack."""
+    # 1. Direct path check for Render build environment
+    global_path = "/usr/local/bin/cvi-backend"
+    if os.path.exists(global_path):
+        return global_path
+
+    # 2. Fallback to using stack exec with 'where' (Windows) or 'which' (Linux)
+    shell_cmd = "where" if os.name == "nt" else "which"
     try:
         result = subprocess.run(
-            ["stack", "exec", "--", "where", "cvi-backend"],
+            ["stack", "exec", "--", shell_cmd, "cvi-backend"],
             cwd=os.path.join(os.path.dirname(__file__), "..", "cvi-backend"),
             capture_output=True,
             text=True,
             check=True
         )
-        return result.stdout.strip()
+        # where tool on Windows can return multiple lines
+        return result.stdout.strip().split('\n')[0]
     except subprocess.CalledProcessError:
         return None
 
