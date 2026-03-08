@@ -1,5 +1,5 @@
 # Stage 1: Build the Haskell Environment & Python App
-FROM haskell:9.4
+FROM haskell:9.6
 
 # Install Python 3 and pip
 RUN apt-get update && apt-get install -y \
