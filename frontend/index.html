@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,7 +18,7 @@
             --secondary: #818cf8;
             --accent: #22d3ee;
             --glow: #38bdf840;
-            
+
             --low-color: #4ade80;
             --mod-color: #fbbf24;
             --high-color: #f97316;
@@ -29,7 +30,7 @@
             padding: 0;
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-color);
-            background-image: 
+            background-image:
                 radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.15) 0%, transparent 40%),
                 radial-gradient(circle at 90% 80%, rgba(129, 140, 248, 0.15) 0%, transparent 40%);
             background-attachment: fixed;
@@ -132,7 +133,8 @@
 
         /* Results dashboard */
         .results-dashboard {
-            display: none; /* hidden initially */
+            display: none;
+            /* hidden initially */
             animation: fadeIn 0.5s ease;
         }
 
@@ -165,7 +167,7 @@
         .metric-card:hover {
             transform: translateY(-3px);
             background: rgba(30, 41, 59, 0.8);
-            border-color: rgba(255,255,255, 0.2);
+            border-color: rgba(255, 255, 255, 0.2);
         }
 
         .metric-title {
@@ -203,12 +205,25 @@
             top: 0;
             bottom: 0;
             width: 8px;
-            background: var(--mod-color); /* fallback */
+            background: var(--mod-color);
+            /* fallback */
         }
-        .cvi-banner[data-risk="Low"]::before { background: var(--low-color); }
-        .cvi-banner[data-risk="Moderate"]::before { background: var(--mod-color); }
-        .cvi-banner[data-risk="High"]::before { background: var(--high-color); }
-        .cvi-banner[data-risk="Very High"]::before { background: var(--vhigh-color); }
+
+        .cvi-banner[data-risk="Low"]::before {
+            background: var(--low-color);
+        }
+
+        .cvi-banner[data-risk="Moderate"]::before {
+            background: var(--mod-color);
+        }
+
+        .cvi-banner[data-risk="High"]::before {
+            background: var(--high-color);
+        }
+
+        .cvi-banner[data-risk="Very High"]::before {
+            background: var(--vhigh-color);
+        }
 
         .cvi-score-group {
             display: flex;
@@ -237,10 +252,29 @@
             align-self: flex-start;
         }
 
-        .cat-Low { background: rgba(74, 222, 128, 0.15); color: var(--low-color); border: 1px solid rgba(74, 222, 128, 0.3); }
-        .cat-Moderate { background: rgba(251, 191, 36, 0.15); color: var(--mod-color); border: 1px solid rgba(251, 191, 36, 0.3); }
-        .cat-High { background: rgba(249, 115, 22, 0.15); color: var(--high-color); border: 1px solid rgba(249, 115, 22, 0.3); }
-        .cat-VeryHigh { background: rgba(244, 63, 94, 0.15); color: var(--vhigh-color); border: 1px solid rgba(244, 63, 94, 0.3); }
+        .cat-Low {
+            background: rgba(74, 222, 128, 0.15);
+            color: var(--low-color);
+            border: 1px solid rgba(74, 222, 128, 0.3);
+        }
+
+        .cat-Moderate {
+            background: rgba(251, 191, 36, 0.15);
+            color: var(--mod-color);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
+        .cat-High {
+            background: rgba(249, 115, 22, 0.15);
+            color: var(--high-color);
+            border: 1px solid rgba(249, 115, 22, 0.3);
+        }
+
+        .cat-VeryHigh {
+            background: rgba(244, 63, 94, 0.15);
+            color: var(--vhigh-color);
+            border: 1px solid rgba(244, 63, 94, 0.3);
+        }
 
         .cvi-details-group {
             text-align: right;
@@ -251,17 +285,21 @@
         .detail-row {
             margin-bottom: 15px;
         }
+
         .detail-row:last-child {
             margin-bottom: 0;
         }
+
         .detail-lbl {
             color: var(--text-sub);
             font-size: 0.95rem;
         }
+
         .detail-val {
             font-size: 1.2rem;
             font-weight: 600;
         }
+
         .detail-penalty {
             color: var(--vhigh-color);
             background: rgba(244, 63, 94, 0.1);
@@ -301,20 +339,48 @@
             align-items: flex-start;
             border-left: 3px solid var(--accent);
         }
-        .pattern-list li:last-child { margin-bottom: 0; }
-        
-        .p-name { font-weight: 600; margin-bottom: 4px; display: block; color: var(--text-main); }
-        .p-desc { font-size: 0.95rem; color: var(--text-sub); line-height: 1.5; }
+
+        .pattern-list li:last-child {
+            margin-bottom: 0;
+        }
+
+        .p-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+            display: block;
+            color: var(--text-main);
+        }
+
+        .p-desc {
+            font-size: 0.95rem;
+            color: var(--text-sub);
+            line-height: 1.5;
+        }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         @keyframes pulse {
-            0% { opacity: 0.6; }
-            50% { opacity: 1; }
-            100% { opacity: 0.6; }
+            0% {
+                opacity: 0.6;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.6;
+            }
         }
 
         /* Error box */
@@ -330,6 +396,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <div class="container">
@@ -337,7 +404,8 @@
         <div class="subtitle">Real-time geographical analysis & Haskell pattern-matching engine</div>
 
         <div class="search-wrapper">
-            <input type="text" id="locationInput" class="search-input" placeholder="Enter a coastal district or city (e.g., Miami, Manila, Chennai)...">
+            <input type="text" id="locationInput" class="search-input"
+                placeholder="Enter a coastal district or city (e.g., Miami, Manila, Chennai)...">
             <button id="searchBtn" class="search-button">Analyze</button>
         </div>
 
@@ -345,7 +413,7 @@
         <div class="error-msg" id="errorMsg"></div>
 
         <div class="results-dashboard" id="resultsDash">
-            
+
             <div class="metrics-grid">
                 <div class="metric-card">
                     <div class="metric-title">Location</div>
@@ -372,7 +440,7 @@
                     <div class="cvi-large-score" id="resFinalScore">0.00</div>
                     <div class="cvi-category" id="resCatBadge">Loading</div>
                 </div>
-                
+
                 <div class="cvi-details-group">
                     <div class="detail-row">
                         <div class="detail-lbl">Base Vulnerability Index</div>
@@ -421,7 +489,7 @@
             loader.style.display = 'block';
 
             // REPLACE THIS URL with your actual Render backend URL once deployed
-            const API_BASE_URL = 'https://YOUR_BACKEND_APP_NAME.onrender.com';
+            const API_BASE_URL = 'https://cvi-backend.onrender.com';
 
             try {
                 const response = await fetch(`${API_BASE_URL}/api/analyze`, {
@@ -454,11 +522,11 @@
             document.getElementById('resLocation').textContent = raw.district;
             document.getElementById('resState').textContent = raw.state;
             document.getElementById('resElev').textContent = parseFloat(raw.elevation_m).toFixed(1);
-            
+
             // Format population density back to approx total population
             let approxPop = raw.pop_density_km2 * 800;
             document.getElementById('resPop').textContent = (approxPop / 1000).toFixed(1) + 'k';
-            
+
             document.getElementById('resSlr').textContent = parseFloat(raw.slr_mm_yr).toFixed(1);
 
             // Scores
@@ -471,28 +539,28 @@
             const cleanCat = cvi.category.replace(/[^a-zA-Z]/g, '').trim(); // Remove emojis if any
             badge.textContent = cvi.category;
             badge.className = 'cvi-category'; // reset
-            
+
             let colorKey = "Low";
             if (cleanCat === 'Low') { badge.classList.add('cat-Low'); colorKey = "Low"; }
             if (cleanCat === 'Moderate') { badge.classList.add('cat-Moderate'); colorKey = "Moderate"; }
             if (cleanCat === 'High') { badge.classList.add('cat-High'); colorKey = "High"; }
             if (cleanCat.includes('Very')) { badge.classList.add('cat-VeryHigh'); colorKey = "Very High"; }
-            
+
             document.getElementById('riskBanner').setAttribute('data-risk', colorKey);
 
             // Patterns Log
             const list = document.getElementById('patternList');
             list.innerHTML = '';
-            
+
             if (cvi.matched_patterns.length === 0 || cvi.matched_patterns[0] === 'None' || cvi.explanation === "No high-risk patterns detected.") {
                 list.innerHTML = '<li><span class="p-desc">Safe — System detected no compounding high-risk physical or social patterns.</span></li>';
             } else {
                 // Split explanation pipe delims
                 const explanations = cvi.explanation.split(' | ');
-                
+
                 cvi.matched_patterns.forEach((pattern, index) => {
                     const li = document.createElement('li');
-                    
+
                     // The explanation contains Name: Desc, let's extract it
                     let eText = explanations[index] || '';
                     if (eText.startsWith(pattern + ': ')) {
@@ -515,4 +583,5 @@
 
     </script>
 </body>
+
 </html>
