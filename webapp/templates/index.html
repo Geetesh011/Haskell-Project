@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CVI | Climate Vulnerability Index</title>
+    <!-- Modern Typography: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b1120;
+            --container-bg: rgba(30, 41, 59, 0.4);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --primary: #38bdf8;
+            --secondary: #818cf8;
+            --accent: #22d3ee;
+            --glow: #38bdf840;
+            
+            --low-color: #4ade80;
+            --mod-color: #fbbf24;
+            --high-color: #f97316;
+            --vhigh-color: #f43f5e;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(129, 140, 248, 0.15) 0%, transparent 40%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 960px;
+            margin: 40px 20px;
+            padding: 40px;
+            border-radius: 24px;
+            background: var(--container-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin: 0 0 10px 0;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-sub);
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+
+        /* Search Box styling */
+        .search-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto 40px auto;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 18px 24px;
+            font-size: 1.1rem;
+            color: var(--text-main);
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 9999px;
+            outline: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-sizing: border-box;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-input:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px var(--glow), 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .search-button {
+            position: absolute;
+            right: 8px;
+            top: 8px;
+            bottom: 8px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 9999px;
+            padding: 0 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 14px 0 rgba(129, 140, 248, 0.39);
+        }
+
+        .search-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(129, 140, 248, 0.5);
+        }
+
+        .search-button:active {
+            transform: translateY(1px);
+        }
+
+        /* Results dashboard */
+        .results-dashboard {
+            display: none; /* hidden initially */
+            animation: fadeIn 0.5s ease;
+        }
+
+        .loader {
+            display: none;
+            text-align: center;
+            color: var(--text-sub);
+            margin-top: 20px;
+            font-size: 1.2rem;
+            animation: pulse 1.5s infinite;
+        }
+
+        /* Top metrics cards */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-3px);
+            background: rgba(30, 41, 59, 0.8);
+            border-color: rgba(255,255,255, 0.2);
+        }
+
+        .metric-title {
+            color: var(--text-sub);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        /* Large CVI display */
+        .cvi-banner {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cvi-banner::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 8px;
+            background: var(--mod-color); /* fallback */
+        }
+        .cvi-banner[data-risk="Low"]::before { background: var(--low-color); }
+        .cvi-banner[data-risk="Moderate"]::before { background: var(--mod-color); }
+        .cvi-banner[data-risk="High"]::before { background: var(--high-color); }
+        .cvi-banner[data-risk="Very High"]::before { background: var(--vhigh-color); }
+
+        .cvi-score-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cvi-label {
+            font-size: 1.1rem;
+            color: var(--text-sub);
+            margin-bottom: 4px;
+        }
+
+        .cvi-large-score {
+            font-size: 4rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 10px;
+        }
+
+        .cvi-category {
+            font-size: 1.4rem;
+            font-weight: 600;
+            padding: 6px 16px;
+            border-radius: 99px;
+            display: inline-block;
+            align-self: flex-start;
+        }
+
+        .cat-Low { background: rgba(74, 222, 128, 0.15); color: var(--low-color); border: 1px solid rgba(74, 222, 128, 0.3); }
+        .cat-Moderate { background: rgba(251, 191, 36, 0.15); color: var(--mod-color); border: 1px solid rgba(251, 191, 36, 0.3); }
+        .cat-High { background: rgba(249, 115, 22, 0.15); color: var(--high-color); border: 1px solid rgba(249, 115, 22, 0.3); }
+        .cat-VeryHigh { background: rgba(244, 63, 94, 0.15); color: var(--vhigh-color); border: 1px solid rgba(244, 63, 94, 0.3); }
+
+        .cvi-details-group {
+            text-align: right;
+            border-left: 1px solid var(--border-color);
+            padding-left: 40px;
+        }
+
+        .detail-row {
+            margin-bottom: 15px;
+        }
+        .detail-row:last-child {
+            margin-bottom: 0;
+        }
+        .detail-lbl {
+            color: var(--text-sub);
+            font-size: 0.95rem;
+        }
+        .detail-val {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        .detail-penalty {
+            color: var(--vhigh-color);
+            background: rgba(244, 63, 94, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        /* Pattern Log */
+        .pattern-log {
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid var(--border-color);
+        }
+
+        .pattern-log h3 {
+            margin-top: 0;
+            color: var(--text-main);
+            font-size: 1.2rem;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .pattern-list {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .pattern-list li {
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-start;
+            border-left: 3px solid var(--accent);
+        }
+        .pattern-list li:last-child { margin-bottom: 0; }
+        
+        .p-name { font-weight: 600; margin-bottom: 4px; display: block; color: var(--text-main); }
+        .p-desc { font-size: 0.95rem; color: var(--text-sub); line-height: 1.5; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        /* Error box */
+        .error-msg {
+            background: rgba(244, 63, 94, 0.1);
+            border: 1px solid rgba(244, 63, 94, 0.3);
+            color: #fca5a5;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+            display: none;
+        }
+    </pattern-list>
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Climate Vulnerability Index</h1>
+        <div class="subtitle">Real-time geographical analysis & Haskell pattern-matching engine</div>
+
+        <div class="search-wrapper">
+            <input type="text" id="locationInput" class="search-input" placeholder="Enter a coastal district or city (e.g., Miami, Manila, Chennai)...">
+            <button id="searchBtn" class="search-button">Analyze</button>
+        </div>
+
+        <div class="loader" id="loader">Fetching geographic data & running Haskell engine...</div>
+        <div class="error-msg" id="errorMsg"></div>
+
+        <div class="results-dashboard" id="resultsDash">
+            
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-title">Location</div>
+                    <div class="metric-value" id="resLocation">--</div>
+                    <div style="font-size: 0.85rem; color: var(--text-sub); margin-top: 4px;" id="resState">--</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">True Elevation</div>
+                    <div class="metric-value"><span id="resElev"></span> m</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">Est. Population</div>
+                    <div class="metric-value"><span id="resPop"></span></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">SLR Projection</div>
+                    <div class="metric-value"><span id="resSlr"></span> mm/yr</div>
+                </div>
+            </div>
+
+            <div class="cvi-banner" id="riskBanner" data-risk="Low">
+                <div class="cvi-score-group">
+                    <div class="cvi-label">Final Composite Score</div>
+                    <div class="cvi-large-score" id="resFinalScore">0.00</div>
+                    <div class="cvi-category" id="resCatBadge">Loading</div>
+                </div>
+                
+                <div class="cvi-details-group">
+                    <div class="detail-row">
+                        <div class="detail-lbl">Base Vulnerability Index</div>
+                        <div class="detail-val" id="resBaseScore">0.00</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-lbl">Pattern Matching Penalty</div>
+                        <div class="detail-val detail-penalty" id="resPenalty">+0.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pattern-log">
+                <h3>Triggered Risk Patterns</h3>
+                <ul class="pattern-list" id="patternList">
+                    <!-- Dynamic patterns here -->
+                </ul>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const searchInput = document.getElementById('locationInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const loader = document.getElementById('loader');
+        const resultsDash = document.getElementById('resultsDash');
+        const errorMsg = document.getElementById('errorMsg');
+
+        // Allow 'Enter' key to trigger search
+        searchInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                performAnalysis();
+            }
+        });
+
+        searchBtn.addEventListener('click', performAnalysis);
+
+        async function performAnalysis() {
+            const loc = searchInput.value.trim();
+            if (!loc) return;
+
+            // Reset UI
+            errorMsg.style.display = 'none';
+            resultsDash.style.display = 'none';
+            loader.style.display = 'block';
+
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ location: loc })
+                });
+
+                const data = await response.json();
+                loader.style.display = 'none';
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Something went wrong');
+                }
+
+                renderResults(data);
+
+            } catch (error) {
+                loader.style.display = 'none';
+                errorMsg.textContent = error.message;
+                errorMsg.style.display = 'block';
+            }
+        }
+
+        function renderResults(data) {
+            const raw = data.raw_metrics;
+            const cvi = data.cvi_result;
+
+            // Metrics
+            document.getElementById('resLocation').textContent = raw.district;
+            document.getElementById('resState').textContent = raw.state;
+            document.getElementById('resElev').textContent = parseFloat(raw.elevation_m).toFixed(1);
+            
+            // Format population density back to approx total population
+            let approxPop = raw.pop_density_km2 * 800;
+            document.getElementById('resPop').textContent = (approxPop / 1000).toFixed(1) + 'k';
+            
+            document.getElementById('resSlr').textContent = parseFloat(raw.slr_mm_yr).toFixed(1);
+
+            // Scores
+            document.getElementById('resFinalScore').textContent = parseFloat(cvi.final_cvi).toFixed(4);
+            document.getElementById('resBaseScore').textContent = parseFloat(cvi.base_cvi).toFixed(4);
+            document.getElementById('resPenalty').textContent = '+' + parseFloat(cvi.pattern_penalty).toFixed(4);
+
+            // Category Badge
+            const badge = document.getElementById('resCatBadge');
+            const cleanCat = cvi.category.replace(/[^a-zA-Z]/g, '').trim(); // Remove emojis if any
+            badge.textContent = cvi.category;
+            badge.className = 'cvi-category'; // reset
+            
+            let colorKey = "Low";
+            if (cleanCat === 'Low') { badge.classList.add('cat-Low'); colorKey = "Low"; }
+            if (cleanCat === 'Moderate') { badge.classList.add('cat-Moderate'); colorKey = "Moderate"; }
+            if (cleanCat === 'High') { badge.classList.add('cat-High'); colorKey = "High"; }
+            if (cleanCat.includes('Very')) { badge.classList.add('cat-VeryHigh'); colorKey = "Very High"; }
+            
+            document.getElementById('riskBanner').setAttribute('data-risk', colorKey);
+
+            // Patterns Log
+            const list = document.getElementById('patternList');
+            list.innerHTML = '';
+            
+            if (cvi.matched_patterns.length === 0 || cvi.matched_patterns[0] === 'None' || cvi.explanation === "No high-risk patterns detected.") {
+                list.innerHTML = '<li><span class="p-desc">Safe — System detected no compounding high-risk physical or social patterns.</span></li>';
+            } else {
+                // Split explanation pipe delims
+                const explanations = cvi.explanation.split(' | ');
+                
+                cvi.matched_patterns.forEach((pattern, index) => {
+                    const li = document.createElement('li');
+                    
+                    // The explanation contains Name: Desc, let's extract it
+                    let eText = explanations[index] || '';
+                    if (eText.startsWith(pattern + ': ')) {
+                        eText = eText.replace(pattern + ': ', '');
+                    }
+
+                    li.innerHTML = `
+                        <div>
+                            <span class="p-name">${pattern}</span>
+                            <span class="p-desc">${eText}</span>
+                        </div>
+                    `;
+                    list.appendChild(li);
+                });
+            }
+
+            // Show
+            resultsDash.style.display = 'block';
+        }
+
+    </script>
+</body>
+</html>

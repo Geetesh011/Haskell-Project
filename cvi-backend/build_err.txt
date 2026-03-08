@@ -1,0 +1,39 @@
+﻿stack : cvi-backend> 
+configure (exe)
+At line:1 char:14
++ stack clean; stack build 
+*>&1 | Out-File -Encoding 
+utf8 build_err.txt
++              
+~~~~~~~~~~~~~~~~
+    + CategoryInfo           
+   : NotSpecified: (cvi-bac  
+  kend> configure (exe):St   
+ ring) [], RemoteExceptio    
+n
+    + FullyQualifiedErrorId  
+   : NativeCommandError
+ 
+Configuring 
+cvi-backend-0.1.0.0...
+cvi-backend> build (exe) 
+with ghc-9.6.6
+Preprocessing executable 
+'cvi-backend' for 
+cvi-backend-0.1.0.0..
+Building executable 
+'cvi-backend' for 
+cvi-backend-0.1.0.0..
+[1 of 3] Compiling Types
+[2 of 3] Compiling 
+LogicEngine
+[3 of 3] Compiling Main
+[4 of 4] Linking .stack-work\
+dist\effaccc7\build\cvi-backe
+nd\cvi-backend.exe
+cvi-backend> copy/register
+Installing executable 
+cvi-backend in C:\Users\geete
+\OneDrive\Desktop\Project Has
+kell\cvi-backend\.stack-work\
+install\a05e6383\bin
