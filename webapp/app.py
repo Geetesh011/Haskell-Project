@@ -3,13 +3,16 @@ import os
 import json
 import subprocess
 import requests
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 
 # Add python_runner to path to import data_ingestion
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "python_runner"))
 from data_ingestion import generate_sample_data, normalize
 
 app = Flask(__name__)
+# Enable CORS for the Vercel frontend domain
+CORS(app)
 
 def fetch_real_data(location_name: str) -> dict:
     """
@@ -95,10 +98,6 @@ def find_haskell_binary() -> str:
     except subprocess.CalledProcessError:
         return None
 
-
-@app.route("/")
-def index():
-    return render_template("index.html")
 
 @app.route("/api/analyze", methods=["POST"])
 def analyze():
