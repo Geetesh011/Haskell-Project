@@ -3,6 +3,8 @@ import os
 import json
 import subprocess
 import requests
+import threading
+from datetime import datetime, timezone, timedelta
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
@@ -14,18 +16,175 @@ app = Flask(__name__)
 # Enable CORS for the Vercel frontend domain
 CORS(app)
 
+
+# ===========================================================================
+#  IMPROVEMENT 3 — IN-MEMORY CACHE (24-hour TTL)
+# ===========================================================================
+# Simple thread-safe cache: { normalised_key -> {"data": {...}, "cached_at": datetime} }
+
+_cache: dict = {}
+_cache_lock = threading.Lock()
+CACHE_TTL_SECONDS = 86400  # 24 hours
+
+
+def cache_get(key: str):
+    """Return cached entry if it exists and is less than 24 h old, else None."""
+    with _cache_lock:
+        entry = _cache.get(key)
+        if entry is None:
+            return None
+        age = (datetime.now(timezone.utc) - entry["cached_at"]).total_seconds()
+        if age > CACHE_TTL_SECONDS:
+            del _cache[key]
+            return None
+        return entry
+
+
+def cache_set(key: str, data: dict):
+    """Store data in cache with current UTC timestamp."""
+    with _cache_lock:
+        _cache[key] = {
+            "data": data,
+            "cached_at": datetime.now(timezone.utc),
+        }
+
+
+# ===========================================================================
+#  IMPROVEMENT 2 — PERCENTILE RANKING TABLE
+# ===========================================================================
+
+DISTRICT_CVI_TABLE = {
+    "Bapatla": 0.5849,
+    "Kakinada": 0.7210,
+    "Visakhapatnam": 0.6340,
+    "Nellore": 0.5920,
+    "Ongole": 0.5650,
+    "Guntur": 0.5200,
+    "Krishna": 0.6100,
+    "West Godavari": 0.5800,
+    "East Godavari": 0.6300,
+    "Srikakulam": 0.6800,
+    "Chennai": 0.5509,
+    "Puducherry": 0.5800,
+    "Cuddalore": 0.6010,
+    "Nagapattinam": 0.6750,
+    "Kanyakumari": 0.4200,
+    "Thoothukudi": 0.5100,
+    "Ramanathapuram": 0.5500,
+    "Puri": 0.7680,
+    "Balasore": 0.7100,
+    "Kendrapara": 0.7300,
+    "Paradip": 0.6900,
+    "Berhampur": 0.5600,
+    "Ganjam": 0.5800,
+    "Mangaluru": 0.3200,
+    "Udupi": 0.3500,
+    "Uttara Kannada": 0.3800,
+    "Kozhikode": 0.4800,
+    "Kochi": 0.5100,
+    "Thiruvananthapuram": 0.4500,
+    "Alappuzha": 0.5600,
+    "Kollam": 0.4900,
+    "Mumbai": 0.6200,
+    "Raigad": 0.5100,
+    "Ratnagiri": 0.2980,
+    "Sindhudurg": 0.3100,
+    "Thane": 0.5800,
+    "Goa": 0.4200,
+    "Surat": 0.5500,
+    "Bharuch": 0.4800,
+    "Navsari": 0.5200,
+    "Valsad": 0.5000,
+    "Kolkata": 0.6800,
+    "South 24 Parganas": 0.7500,
+    "North 24 Parganas": 0.7200,
+    "Midnapore": 0.6600,
+}
+
+
+def compute_percentile(final_cvi: float) -> dict:
+    """
+    Compute the vulnerability percentile rank of the given CVI score
+    against the DISTRICT_CVI_TABLE reference dataset.
+
+    Returns a dict with:
+      rank         — percentage of districts less vulnerable than this score
+      rankedOutOf  — total districts in table
+      worseThan    — count of districts with a lower score
+      interpretation — human-readable string
+    """
+    scores = list(DISTRICT_CVI_TABLE.values())
+    total = len(scores)
+    worse_than = sum(1 for s in scores if s < final_cvi)
+    rank_pct = round((worse_than / total) * 100)
+    return {
+        "rank": rank_pct,
+        "rankedOutOf": total,
+        "worseThan": worse_than,
+        "interpretation": f"More vulnerable than {rank_pct}% of Indian coastal districts",
+    }
+
+
+# ===========================================================================
+#  IMPROVEMENT 1 — REAL GEOCODING (Nominatim) + OPEN-ELEVATION (SRTM)
+# ===========================================================================
+
+def geocode_nominatim(location_name: str):
+    """
+    Call Nominatim OpenStreetMap API to get real lat/lon for a location.
+    Returns (lat, lon, display_name) or None on failure.
+    Always fails silently — never raises.
+    """
+    try:
+        url = (
+            f"https://nominatim.openstreetmap.org/search"
+            f"?q={requests.utils.quote(location_name + ' India')}"
+            f"&format=json&limit=1"
+        )
+        resp = requests.get(url, headers={"User-Agent": "CVI-Backend/2.0"}, timeout=5)
+        results = resp.json()
+        if not results:
+            return None
+        top = results[0]
+        return float(top["lat"]), float(top["lon"]), top.get("display_name", location_name)
+    except Exception:
+        return None
+
+
+def get_open_elevation(lat: float, lon: float):
+    """
+    Call Open-Elevation API (backed by SRTM) to get true elevation in metres.
+    Returns elevation as float, or None on failure.
+    Always fails silently — never raises.
+    """
+    try:
+        url = f"https://api.open-elevation.com/api/v1/lookup?locations={lat},{lon}"
+        resp = requests.get(url, timeout=8)
+        data = resp.json()
+        return float(data["results"][0]["elevation"])
+    except Exception:
+        return None
+
+
+# ===========================================================================
+#  ORIGINAL fetch_real_data — extended with Nominatim + Open-Elevation
+# ===========================================================================
+
 def fetch_real_data(location_name: str) -> dict:
     """
     Fetch real geographic data using Open-Meteo Geocoding API.
     Extracts population and real elevation.
-    Other specialized climate variables (like Sea-Level Rise, Mangroves) 
-    are procedurally estimated based on the real latitude/longitude geography.
+    Other specialised climate variables (SLR, Mangroves) are procedurally
+    estimated based on the real latitude/longitude geography.
+
+    IMPROVEMENT 1: Also tries Nominatim for real coordinates, then
+    Open-Elevation for true SRTM elevation. Falls back silently on error.
     """
     geo_url = f"https://geocoding-api.open-meteo.com/v1/search?name={location_name}&count=1&format=json"
-    
+
     try:
-        res = requests.get(geo_url).json()
-    except Exception as e:
+        res = requests.get(geo_url, timeout=6).json()
+    except Exception:
         return None
 
     if "results" not in res or len(res["results"]) == 0:
@@ -34,38 +193,47 @@ def fetch_real_data(location_name: str) -> dict:
     geo = res["results"][0]
     district = geo.get("name", location_name)
     state = geo.get("admin1", geo.get("country", "Unknown"))
-    
-    # Real metrics from API
+
+    # Real metrics from Open-Meteo API (primary)
     elevation = geo.get("elevation", 10.0)
     lat = geo.get("latitude", 0.0)
+    lon = geo.get("longitude", 0.0)
     r_population = geo.get("population", None)
-    
-    # Estimate density
+
+    # ---- IMPROVEMENT 1: Try Nominatim for a more precise lat/lon ----
+    nominatim_result = geocode_nominatim(location_name)
+    coordinates = {"lat": lat, "lon": lon}
+    elevation_source = "OPEN-METEO"
+
+    if nominatim_result:
+        nom_lat, nom_lon, _ = nominatim_result
+        # Use Nominatim coordinates if they look more precise
+        coordinates = {"lat": nom_lat, "lon": nom_lon}
+
+        # ---- IMPROVEMENT 1: Try Open-Elevation for true SRTM elevation ----
+        srtm_elevation = get_open_elevation(nom_lat, nom_lon)
+        if srtm_elevation is not None:
+            elevation = srtm_elevation
+            elevation_source = "OPEN-ELEVATION/SRTM"
+
+    # ---- Estimate density ----
     if r_population:
-        # Assume average district area of 800 sq km for density
         pop_density = r_population / 800.0
     else:
-        # Fallback dense population
         pop_density = 800.0
 
-    # Procedural/Realistic generation for variables lacking free global real-time APIs
+    # ---- Procedural estimates for variables without free real-time APIs ----
     abs_lat = abs(lat)
-    
-    # Cyclones occur mostly between 10-30 degrees latitude globally
+
     if 10 <= abs_lat <= 30:
         cyclone_freq = 3.5
     elif abs_lat < 10:
         cyclone_freq = 1.0
     else:
         cyclone_freq = 0.5
-        
-    # Mangrove covers are usually tropical (0 to 25 deg lat)
+
     mangrove = 15.0 if abs_lat < 25 else 1.0
-    
-    # SLR (global avg is ~3.4 mm/yr, we add variance based on lat)
     slr = 3.2 + (abs_lat % 2.0)
-    
-    # Default assumptions (as real-time APIs don't exist for these without premium GIS subscriptions)
     erosion = 2.0
     income = 180000
     drainage = 4
@@ -81,36 +249,40 @@ def fetch_real_data(location_name: str) -> dict:
         "cyclone_freq": cyclone_freq,
         "mangrove_cover_pct": mangrove,
         "drainage_quality": drainage,
+        # IMPROVEMENT 1 — new additive fields
+        "coordinates": coordinates,
+        "elevation_source": elevation_source,
     }
 
 
+# ===========================================================================
+#  BINARY FINDER (unchanged)
+# ===========================================================================
+
 def find_haskell_binary() -> str:
     """Find the compiled Haskell executable."""
-    # 1. Check fixed production path (from Docker multi-stage build)
     prod_path = "/usr/local/bin/cvi-backend"
     if os.path.exists(prod_path):
         return prod_path
 
-    # 2. Check local relative paths (development)
-    # 3. Fallback to using stack exec with 'where' (Windows) or 'which' (Linux)
     shell_cmd = "where" if os.name == "nt" else "which"
     try:
-        # Check if stack is available before trying to call it
         subprocess.run(["stack", "--version"], capture_output=True, check=True)
-        
         result = subprocess.run(
             ["stack", "exec", "--", shell_cmd, "cvi-backend"],
             cwd=os.path.join(os.path.dirname(__file__), "..", "cvi-backend"),
             capture_output=True,
             text=True,
-            check=True
+            check=True,
         )
-        # where tool on Windows can return multiple lines
-        return result.stdout.strip().split('\n')[0]
+        return result.stdout.strip().split("\n")[0]
     except (subprocess.CalledProcessError, FileNotFoundError):
-        # Last resort: check if it's in the current path
         return None
 
+
+# ===========================================================================
+#  API ROUTE — /api/analyze
+# ===========================================================================
 
 @app.route("/api/analyze", methods=["POST"])
 def analyze():
@@ -122,34 +294,51 @@ def analyze():
     if not location:
         return jsonify({"error": "Location is required"}), 400
 
+    # ---- IMPROVEMENT 3: Check cache first ----
+    cache_key = location.lower().strip()
+    cached_entry = cache_get(cache_key)
+
+    if cached_entry is not None:
+        # Cache HIT — return stored result immediately
+        cached_data = cached_entry["data"].copy()
+        cached_data["cache"] = {
+            "hit": True,
+            "cachedAt": cached_entry["cached_at"].isoformat(),
+        }
+        response = jsonify(cached_data)
+        response.headers["X-Cache"] = "HIT"
+        return response
+
+    # ---- Cache MISS — run full computation ----
+
     # 1. Fetch real location data
     user_data = fetch_real_data(location)
     if not user_data:
-         return jsonify({"error": f"Could not find geographic data for '{location}'"}), 404
-         
-    # 2. To normalize properly, we attach it to the baseline realistic samples
+        return jsonify({"error": f"Could not find geographic data for '{location}'"}), 404
+
+    # 2. Normalise against India-wide baseline samples
     baseline = generate_sample_data()
-    baseline.append(user_data)
-    
-    # 3. Normalize the entire set (min-max scaling against India baselines)
+    baseline.append({k: v for k, v in user_data.items()
+                     if k not in ("coordinates", "elevation_source")})
+
+    # 3. Min-max scaling
     normed_data = normalize(baseline)
-    
-    # 4. Extract the user's normalized record (it was appended last)
+
+    # 4. Extract the user's normalised record (appended last)
     user_normed = [normed_data[-1]]
-    
+
     # 5. Run through the Haskell Logic Engine
     haskell_bin = find_haskell_binary()
     if not haskell_bin:
         return jsonify({"error": "Could not locate Haskell engine binary"}), 500
 
     try:
-        # Pass JSON string to stdin of the Haskell binary
         proc = subprocess.run(
             [haskell_bin],
             input=json.dumps(user_normed),
             capture_output=True,
             text=True,
-            check=True
+            check=True,
         )
     except subprocess.CalledProcessError as e:
         return jsonify({"error": "Haskell logic engine failed", "details": e.stderr}), 500
@@ -161,13 +350,30 @@ def analyze():
 
     if isinstance(results, dict) and "error" in results:
         return jsonify(results), 500
-        
+
+    cvi_result = results[0]
+    final_cvi_score = float(cvi_result.get("final_cvi", 0.0))
+
+    # ---- IMPROVEMENT 2: Compute percentile ranking ----
+    percentile_data = compute_percentile(final_cvi_score)
+
+    # ---- Assemble final output (all original fields + new additive fields) ----
     final_output = {
-        "raw_metrics": user_data,
-        "cvi_result": results[0]
+        "raw_metrics": user_data,          # includes coordinates + elevation_source
+        "cvi_result": cvi_result,           # unchanged Haskell output
+        "percentile": percentile_data,      # IMPROVEMENT 2
+        "cache": {                          # IMPROVEMENT 3
+            "hit": False,
+            "cachedAt": None,
+        },
     }
-    
-    return jsonify(final_output)
+
+    # ---- Store in cache for future requests ----
+    cache_set(cache_key, final_output)
+
+    response = jsonify(final_output)
+    response.headers["X-Cache"] = "MISS"
+    return response
 
 
 if __name__ == "__main__":

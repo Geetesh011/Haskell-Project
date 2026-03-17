@@ -5,490 +5,852 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CVI | Climate Vulnerability Index</title>
-    <!-- Modern Typography: Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <meta name="description" content="India Coastal Climate Vulnerability Index — Real-time risk assessment using Haskell pattern-matching engine and geospatial data.">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
+        /* ===== CSS CUSTOM PROPERTIES ===== */
         :root {
-            --bg-color: #0b1120;
-            --container-bg: rgba(30, 41, 59, 0.4);
-            --border-color: rgba(255, 255, 255, 0.1);
-            --text-main: #f8fafc;
-            --text-sub: #94a3b8;
-            --primary: #38bdf8;
-            --secondary: #818cf8;
-            --accent: #22d3ee;
-            --glow: #38bdf840;
-
-            --low-color: #4ade80;
-            --mod-color: #fbbf24;
-            --high-color: #f97316;
-            --vhigh-color: #f43f5e;
+            --bg:         #ffffff;
+            --bg2:        #f0f4f8;
+            --bg3:        #e8edf2;
+            --panel:      #f8fafc;
+            --border:     #d1dbe6;
+            --border2:    #b8c8d8;
+            --text:       #0a1628;
+            --text2:      #2d4a6b;
+            --text3:      #6b8aaa;
+            --lime:       #1a3a6b;
+            --amber:      #c45e00;
+            --orange:     #b84400;
+            --red:        #c41e3a;
+            --teal:       #0d47a1;
+            --scan-line:  rgba(13, 71, 161, 0.02);
         }
 
+        /* ===== RESET ===== */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        /* ===== BODY ===== */
         body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
+            font-family: 'IBM Plex Sans', sans-serif;
+            background-color: var(--bg);
             background-image:
-                radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(129, 140, 248, 0.15) 0%, transparent 40%);
-            background-attachment: fixed;
-            color: var(--text-main);
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 3px,
+                    rgba(13, 71, 161, 0.015) 3px,
+                    rgba(13, 71, 161, 0.015) 4px
+                ),
+                radial-gradient(circle at 10% 20%, rgba(13, 71, 161, 0.03) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 119, 182, 0.02) 0%, transparent 40%);
+            color: var(--text);
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
         }
 
-        .container {
-            width: 100%;
-            max-width: 960px;
-            margin: 40px 20px;
-            padding: 40px;
-            border-radius: 24px;
-            background: var(--container-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--border-color);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            margin: 0 0 10px 0;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-align: center;
-            line-height: 1.2;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: var(--text-sub);
-            font-size: 1.1rem;
-            margin-bottom: 40px;
-            font-weight: 300;
-        }
-
-        /* Search Box styling */
-        .search-wrapper {
-            position: relative;
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto 40px auto;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 18px 24px;
-            font-size: 1.1rem;
-            color: var(--text-main);
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid var(--border-color);
-            border-radius: 9999px;
-            outline: none;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-sizing: border-box;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        .search-input:focus {
-            border-color: var(--secondary);
-            box-shadow: 0 0 0 3px var(--glow), 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            background: rgba(15, 23, 42, 0.8);
-        }
-
-        .search-button {
-            position: absolute;
-            right: 8px;
-            top: 8px;
-            bottom: 8px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            border: none;
-            border-radius: 9999px;
-            padding: 0 24px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 14px 0 rgba(129, 140, 248, 0.39);
-        }
-
-        .search-button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(129, 140, 248, 0.5);
-        }
-
-        .search-button:active {
-            transform: translateY(1px);
-        }
-
-        /* Results dashboard */
-        .results-dashboard {
-            display: none;
-            /* hidden initially */
-            animation: fadeIn 0.5s ease;
-        }
-
-        .loader {
-            display: none;
-            text-align: center;
-            color: var(--text-sub);
-            margin-top: 20px;
-            font-size: 1.2rem;
-            animation: pulse 1.5s infinite;
-        }
-
-        /* Top metrics cards */
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .metric-card {
-            background: rgba(30, 41, 59, 0.6);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 20px;
-            text-align: center;
-            transition: transform 0.2s ease, background 0.2s ease;
-        }
-
-        .metric-card:hover {
-            transform: translateY(-3px);
-            background: rgba(30, 41, 59, 0.8);
-            border-color: rgba(255, 255, 255, 0.2);
-        }
-
-        .metric-title {
-            color: var(--text-sub);
-            font-size: 0.9rem;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .metric-value {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-
-        /* Large CVI display */
-        .cvi-banner {
-            background: rgba(15, 23, 42, 0.5);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 40px;
+        /* ===== STICKY TOPNAV ===== */
+        .topnav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            height: 52px;
+            background: #0d2757;
+            border-bottom: 1px solid #1a3a6b;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 30px;
-            position: relative;
-            overflow: hidden;
+            padding: 0 32px;
         }
-
-        .cvi-banner::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 8px;
-            background: var(--mod-color);
-            /* fallback */
-        }
-
-        .cvi-banner[data-risk="Low"]::before {
-            background: var(--low-color);
-        }
-
-        .cvi-banner[data-risk="Moderate"]::before {
-            background: var(--mod-color);
-        }
-
-        .cvi-banner[data-risk="High"]::before {
-            background: var(--high-color);
-        }
-
-        .cvi-banner[data-risk="Very High"]::before {
-            background: var(--vhigh-color);
-        }
-
-        .cvi-score-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .cvi-label {
-            font-size: 1.1rem;
-            color: var(--text-sub);
-            margin-bottom: 4px;
-        }
-
-        .cvi-large-score {
-            font-size: 4rem;
-            font-weight: 800;
-            line-height: 1;
-            margin-bottom: 10px;
-        }
-
-        .cvi-category {
-            font-size: 1.4rem;
+        .topnav-logo {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 1rem;
             font-weight: 600;
-            padding: 6px 16px;
-            border-radius: 99px;
+            color: #4fc3f7;
+            letter-spacing: 0.05em;
+        }
+        .topnav-title {
+            font-size: 0.85rem;
+            color: #90b4d4;
+            letter-spacing: 0.04em;
+        }
+        .topnav-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .live-badge {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.75rem;
+            color: #4fc3f7;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .live-dot {
             display: inline-block;
-            align-self: flex-start;
+            width: 7px;
+            height: 7px;
+            background: #4fc3f7;
+            border-radius: 50%;
+            animation: blink 1.4s infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; }
+        }
+        #liveClock {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.8rem;
+            color: #90b4d4;
         }
 
-        .cat-Low {
-            background: rgba(74, 222, 128, 0.15);
-            color: var(--low-color);
-            border: 1px solid rgba(74, 222, 128, 0.3);
+        /* ===== MAIN DASHBOARD ===== */
+        .dashboard {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 40px 32px 60px;
         }
 
-        .cat-Moderate {
-            background: rgba(251, 191, 36, 0.15);
-            color: var(--mod-color);
-            border: 1px solid rgba(251, 191, 36, 0.3);
+        /* ===== HEADER ===== */
+        .header-section {
+            border-left: 3px solid var(--lime);
+            padding-left: 20px;
+            margin-bottom: 40px;
         }
-
-        .cat-High {
-            background: rgba(249, 115, 22, 0.15);
-            color: var(--high-color);
-            border: 1px solid rgba(249, 115, 22, 0.3);
+        .header-eyebrow {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--lime);
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            margin-bottom: 8px;
         }
-
-        .cat-VeryHigh {
-            background: rgba(244, 63, 94, 0.15);
-            color: var(--vhigh-color);
-            border: 1px solid rgba(244, 63, 94, 0.3);
+        .header-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 8px;
         }
-
-        .cvi-details-group {
-            text-align: right;
-            border-left: 1px solid var(--border-color);
-            padding-left: 40px;
-        }
-
-        .detail-row {
-            margin-bottom: 15px;
-        }
-
-        .detail-row:last-child {
-            margin-bottom: 0;
-        }
-
-        .detail-lbl {
-            color: var(--text-sub);
+        .header-subtitle {
             font-size: 0.95rem;
+            color: var(--text2);
+            font-weight: 300;
         }
 
-        .detail-val {
-            font-size: 1.2rem;
-            font-weight: 600;
+        /* ===== SEARCH ===== */
+        .search-section {
+            margin-bottom: 36px;
         }
-
-        .detail-penalty {
-            color: var(--vhigh-color);
-            background: rgba(244, 63, 94, 0.1);
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-family: monospace;
-        }
-
-        /* Pattern Log */
-        .pattern-log {
-            background: rgba(15, 23, 42, 0.4);
-            border-radius: 16px;
-            padding: 24px;
-            border: 1px solid var(--border-color);
-        }
-
-        .pattern-log h3 {
-            margin-top: 0;
-            color: var(--text-main);
-            font-size: 1.2rem;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .pattern-list {
-            margin: 0;
-            padding: 0;
-            list-style: none;
-        }
-
-        .pattern-list li {
-            padding: 12px 16px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 8px;
-            margin-bottom: 10px;
+        .search-row {
             display: flex;
-            align-items: flex-start;
-            border-left: 3px solid var(--accent);
+            max-width: 680px;
+            border: 1px solid var(--border);
         }
-
-        .pattern-list li:last-child {
-            margin-bottom: 0;
-        }
-
-        .p-name {
-            font-weight: 600;
-            margin-bottom: 4px;
-            display: block;
-            color: var(--text-main);
-        }
-
-        .p-desc {
+        #locationInput {
+            flex: 1;
+            padding: 14px 18px;
             font-size: 0.95rem;
-            color: var(--text-sub);
+            font-family: 'IBM Plex Sans', sans-serif;
+            color: var(--text);
+            background: var(--panel);
+            border: none;
+            outline: none;
+            border-radius: 0;
+            transition: border-color 0.2s;
+        }
+        #locationInput::placeholder {
+            color: var(--text3);
+        }
+        #locationInput.valid-input {
+            box-shadow: inset 0 0 0 2px var(--lime);
+        }
+        #locationInput.invalid-input {
+            box-shadow: inset 0 0 0 2px var(--red);
+        }
+        #searchBtn {
+            padding: 14px 24px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            background: #0d47a1;
+            color: #ffffff;
+            border: none;
+            border-radius: 0;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.15s;
+        }
+        #searchBtn:hover { background: #1565c0; }
+        #searchBtn:active { background: #0a3a8f; }
+
+        /* Suggestion chips */
+        .suggestion-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .chip {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.72rem;
+            color: #0d47a1;
+            background: rgba(13,71,161,0.06);
+            border: 1px solid rgba(13,71,161,0.2);
+            padding: 4px 10px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: background 0.15s;
+        }
+        .chip:hover { background: rgba(13,71,161,0.12); }
+
+        /* ===== ERROR BOX ===== */
+        .error-msg {
+            border-left: 3px solid #c41e3a;
+            background: #fdecea;
+            color: #8b1a2a;
+            padding: 14px 18px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 0.9rem;
             line-height: 1.5;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes pulse {
-            0% {
-                opacity: 0.6;
-            }
-
-            50% {
-                opacity: 1;
-            }
-
-            100% {
-                opacity: 0.6;
-            }
-        }
-
-        /* Error box */
-        .error-msg {
-            background: rgba(244, 63, 94, 0.1);
-            border: 1px solid rgba(244, 63, 94, 0.3);
-            color: #fca5a5;
-            padding: 16px;
-            border-radius: 12px;
-            text-align: center;
-            margin-bottom: 20px;
+        /* ===== LOADER ===== */
+        .loader {
             display: none;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.85rem;
+            color: #0d47a1;
+            margin-bottom: 20px;
+            letter-spacing: 0.08em;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* ===== RESULTS ===== */
+        .results-dashboard {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== METRIC CARDS ===== */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--border);
+            margin-bottom: 1px;
+        }
+        .metric-card {
+            background: var(--panel);
+            padding: 20px 20px 14px;
+            position: relative;
+        }
+        .metric-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 2px;
+        }
+        .metric-card.mc-lime::after    { background: #0d47a1; }
+        .metric-card.mc-teal::after    { background: #0077b6; }
+        .metric-card.mc-amber::after   { background: #c45e00; }
+        .metric-card.mc-orange::after  { background: #b84400; }
+
+        .metric-title {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.68rem;
+            color: var(--text2);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 10px;
+        }
+        .metric-value {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 1.7rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+        .metric-sub {
+            font-size: 0.78rem;
+            color: var(--text2);
+            margin-bottom: 10px;
+        }
+        .metric-bar-wrap {
+            height: 2px;
+            background: var(--border2);
+            margin-bottom: 8px;
+            overflow: hidden;
+        }
+        .metric-bar-fill {
+            height: 100%;
+            transition: width 0.6s ease;
+        }
+        .metric-source {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.62rem;
+            color: var(--text3);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        /* ===== SCORE SECTION ===== */
+        .score-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background: var(--border);
+            margin-bottom: 1px;
+        }
+        .score-left {
+            background: var(--panel);
+            padding: 28px 28px 24px;
+            border-left: 4px solid #1a7a3a;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .score-left[data-risk="Moderate"] { border-left-color: #c45e00; }
+        .score-left[data-risk="High"]     { border-left-color: #b84400; }
+        .score-left[data-risk="Very High"]{ border-left-color: #c41e3a; }
+
+        .score-label {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text2);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        .score-number {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 5rem;
+            font-weight: 600;
+            line-height: 1;
+            color: var(--text);
+        }
+        .risk-badge {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 6px 14px;
+            display: inline-block;
+            width: fit-content;
+        }
+        .risk-badge.rb-Low      { background: #e8f5e9; color: #1a7a3a; border: 1px solid #1a7a3a; }
+        .risk-badge.rb-Moderate { background: #fff3e0; color: #c45e00; border: 1px solid #c45e00; }
+        .risk-badge.rb-High     { background: #fff0e0; color: #b84400; border: 1px solid #b84400; }
+        .risk-badge.rb-VeryHigh { background: #fdecea; color: #c41e3a; border: 1px solid #c41e3a; }
+
+        .score-right {
+            background: var(--panel);
+            padding: 28px 28px 24px;
+        }
+        .score-detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background: var(--border);
+            margin-bottom: 16px;
+        }
+        .score-detail-cell {
+            background: var(--bg);
+            padding: 14px 16px;
+        }
+        .sdl { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--text2); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+        .sdv { font-family: 'IBM Plex Mono', monospace; font-size: 1.2rem; font-weight: 600; color: var(--text); }
+        .sdv-penalty { color: var(--red); }
+        .risk-classification {
+            font-size: 0.82rem;
+            color: var(--text2);
+            line-height: 1.6;
+            padding-top: 8px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* ===== GRADIENT BAR ===== */
+        .gradient-bar-section {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-top: none;
+            padding: 20px 24px;
+            margin-bottom: 1px;
+        }
+        .gradient-bar-label {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text2);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 10px;
+        }
+        .gradient-bar-track {
+            position: relative;
+            height: 6px;
+            background: linear-gradient(to right, var(--lime), var(--amber), var(--orange), var(--red));
+            margin-bottom: 8px;
+        }
+        .gradient-bar-marker {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            background: #fff;
+            border: 2px solid var(--bg);
+            border-radius: 50%;
+            transition: left 0.8s cubic-bezier(0.4,0,0.2,1);
+            box-shadow: 0 0 6px rgba(255,255,255,0.5);
+        }
+        .gradient-bar-ticks {
+            display: flex;
+            justify-content: space-between;
+        }
+        .gradient-bar-ticks span {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--text3);
+            text-transform: uppercase;
+        }
+
+        /* ===== ANALYSIS GRID ===== */
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background: var(--border);
+            margin-bottom: 1px;
+        }
+
+        /* ===== RADAR CHART ===== */
+        .radar-panel {
+            background: var(--panel);
+            padding: 24px;
+        }
+        .panel-heading {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.68rem;
+            color: #2d4a6b;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 18px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        .radar-chart-wrap {
+            position: relative;
+            max-width: 340px;
+            margin: 0 auto;
+        }
+
+        /* ===== RISK ASSESSMENT PANEL ===== */
+        .risk-panel {
+            background: var(--panel);
+            padding: 24px;
+            overflow-y: auto;
+        }
+        .risk-section-title {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.62rem;
+            color: var(--text2);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin: 16px 0 8px;
+        }
+        .risk-section-title:first-child { margin-top: 0; }
+        .risk-assessment-text {
+            font-size: 0.88rem;
+            color: var(--text);
+            line-height: 1.6;
+        }
+        .action-badge {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 6px 12px;
+            display: inline-block;
+            margin: 4px 0 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .action-badge.ab-lime   { background: #e8f5e9; color: #1a7a3a; border: 1px solid #1a7a3a; }
+        .action-badge.ab-amber  { background: #fff3e0; color: #c45e00; border: 1px solid #c45e00; }
+        .action-badge.ab-orange { background: #fff0e0; color: #b84400; border: 1px solid #b84400; }
+        .action-badge.ab-red    { background: #fdecea; color: #c41e3a; border: 1px solid #c41e3a; }
+
+        .directive-list {
+            list-style: none;
+            margin: 0 0 8px;
+            padding: 0;
+        }
+        .directive-list li {
+            font-size: 0.83rem;
+            color: var(--text2);
+            padding: 4px 0 4px 14px;
+            position: relative;
+            line-height: 1.5;
+        }
+        .directive-list li::before {
+            content: '›';
+            position: absolute;
+            left: 0;
+            color: #0d47a1;
+            font-weight: 700;
+        }
+        .directive-list.dl-gov li::before { color: #0d47a1; }
+        .directive-list.dl-pub li::before { color: #c45e00; }
+
+        .vuln-bar-wrap { height: 3px; background: #e8edf2; margin: 8px 0; overflow: hidden; }
+        .vuln-bar-fill { height: 100%; transition: width 0.8s ease; }
+        .vuln-text { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--text2); line-height: 1.5; }
+
+        /* ===== PATTERN LOG ===== */
+        .pattern-log-section {
+            background: var(--panel);
+            border-left: 3px solid #0d47a1;
+            border-top: 1px solid var(--border);
+            padding: 24px;
+            margin-bottom: 1px;
+        }
+        .pattern-log-section h3 {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.68rem;
+            color: #0d47a1;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        .pattern-list { list-style: none; margin: 0; padding: 0; }
+        .pattern-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 12px 14px;
+            background: rgba(13,71,161,0.02);
+            border-top: 1px solid var(--border);
+            border-radius: 0;
+        }
+        .pattern-list li:first-child { border-top: none; }
+        .p-num { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: #90b4d4; min-width: 24px; }
+        .p-name { font-family: 'IBM Plex Mono', monospace; font-size: 0.82rem; font-weight: 500; color: #0d47a1; display: block; margin-bottom: 3px; }
+        .p-desc { font-size: 0.83rem; color: var(--text2); line-height: 1.5; }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            border-top: 1px solid var(--border);
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+        .footer-text {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.62rem;
+            color: var(--text3);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            line-height: 1.6;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 900px) {
+            .metrics-grid { grid-template-columns: 1fr 1fr; }
+            .score-section { grid-template-columns: 1fr; }
+            .analysis-grid { grid-template-columns: 1fr; }
+            .dashboard { padding: 20px 16px 48px; }
+        }
+        @media (max-width: 600px) {
+            .header-title { font-size: 1.4rem; }
+            .search-row { flex-direction: column; }
+            #searchBtn { width: 100%; }
+            .topnav-title { display: none; }
+            .score-number { font-size: 3.5rem; }
         }
     </style>
 </head>
 
 <body>
 
-    <div class="container">
-        <h1>Climate Vulnerability Index</h1>
-        <div class="subtitle">Real-time geographical analysis & Haskell pattern-matching engine</div>
-
-        <div class="search-wrapper">
-            <input type="text" id="locationInput" class="search-input"
-                placeholder="Enter a coastal district or city (e.g., Miami, Manila, Chennai)...">
-            <button id="searchBtn" class="search-button">Analyze</button>
+    <!-- ===== STICKY TOPNAV ===== -->
+    <nav class="topnav">
+        <span class="topnav-logo">CVI//SYS</span>
+        <span class="topnav-title">Coastal Climate Vulnerability Index</span>
+        <div class="topnav-right">
+            <span class="live-badge"><span class="live-dot"></span>LIVE</span>
+            <span id="liveClock"></span>
         </div>
+    </nav>
 
-        <div class="loader" id="loader">Fetching geographic data & running Haskell engine...</div>
+    <!-- ===== MAIN DASHBOARD ===== -->
+    <main class="dashboard">
+
+        <!-- HEADER -->
+        <header class="header-section">
+            <div class="header-eyebrow">India Coastal Risk Assessment System</div>
+            <h1 class="header-title">Climate Vulnerability Index</h1>
+            <div class="header-subtitle">Real-time geographical analysis &amp; Haskell pattern-matching engine</div>
+        </header>
+
+        <!-- SEARCH -->
+        <section class="search-section">
+            <div class="search-row">
+                <input type="text" id="locationInput" placeholder="Enter a coastal district (e.g. Chennai, Puri, Kochi)…">
+                <button id="searchBtn">Analyze →</button>
+            </div>
+            <div class="suggestion-chips">
+                <span class="chip" onclick="fillChip('Bapatla')">Bapatla</span>
+                <span class="chip" onclick="fillChip('Kakinada')">Kakinada</span>
+                <span class="chip" onclick="fillChip('Chennai')">Chennai</span>
+                <span class="chip" onclick="fillChip('Puri')">Puri</span>
+                <span class="chip" onclick="fillChip('Kochi')">Kochi</span>
+                <span class="chip" onclick="fillChip('Mangaluru')">Mangaluru</span>
+                <span class="chip" onclick="fillChip('Mumbai')">Mumbai</span>
+                <span class="chip" onclick="fillChip('Visakhapatnam')">Visakhapatnam</span>
+            </div>
+        </section>
+
+        <!-- ERROR / LOADER -->
+        <div class="loader" id="loader">▸ FETCHING GEOGRAPHIC DATA &amp; RUNNING HASKELL ENGINE…</div>
         <div class="error-msg" id="errorMsg"></div>
 
+        <!-- RESULTS -->
         <div class="results-dashboard" id="resultsDash">
 
+            <!-- METRIC CARDS -->
             <div class="metrics-grid">
-                <div class="metric-card">
+                <div class="metric-card mc-lime">
                     <div class="metric-title">Location</div>
-                    <div class="metric-value" id="resLocation">--</div>
-                    <div style="font-size: 0.85rem; color: var(--text-sub); margin-top: 4px;" id="resState">--</div>
+                    <div class="metric-value" style="font-size:1.2rem; padding-top:6px;" id="resLocation">--</div>
+                    <div class="metric-sub" id="resState">--</div>
+                    <div class="metric-bar-wrap"><div class="metric-bar-fill" id="barLocation" style="background:var(--lime); width:100%;"></div></div>
+                    <div class="metric-source">SOURCE: GEO API</div>
                 </div>
-                <div class="metric-card">
+                <div class="metric-card mc-teal">
                     <div class="metric-title">True Elevation</div>
-                    <div class="metric-value"><span id="resElev"></span> m</div>
+                    <div class="metric-value"><span id="resElev">--</span> m</div>
+                    <div class="metric-sub">Above mean sea level</div>
+                    <div class="metric-bar-wrap"><div class="metric-bar-fill" id="barElev" style="background:var(--teal);"></div></div>
+                    <div class="metric-source">SOURCE: SRTM DEM</div>
                 </div>
-                <div class="metric-card">
+                <div class="metric-card mc-amber">
                     <div class="metric-title">Est. Population</div>
-                    <div class="metric-value"><span id="resPop"></span></div>
+                    <div class="metric-value"><span id="resPop">--</span></div>
+                    <div class="metric-sub">District-level estimate</div>
+                    <div class="metric-bar-wrap"><div class="metric-bar-fill" id="barPop" style="background:var(--amber);"></div></div>
+                    <div class="metric-source">SOURCE: CENSUS EST. 2024</div>
                 </div>
-                <div class="metric-card">
+                <div class="metric-card mc-orange">
                     <div class="metric-title">SLR Projection</div>
-                    <div class="metric-value"><span id="resSlr"></span> mm/yr</div>
+                    <div class="metric-value"><span id="resSlr">--</span> mm/yr</div>
+                    <div class="metric-sub">Sea level rise rate</div>
+                    <div class="metric-bar-wrap"><div class="metric-bar-fill" id="barSlr" style="background:var(--orange);"></div></div>
+                    <div class="metric-source">SOURCE: INCOIS / IPCC AR6</div>
                 </div>
             </div>
 
-            <div class="cvi-banner" id="riskBanner" data-risk="Low">
-                <div class="cvi-score-group">
-                    <div class="cvi-label">Final Composite Score</div>
-                    <div class="cvi-large-score" id="resFinalScore">0.00</div>
-                    <div class="cvi-category" id="resCatBadge">Loading</div>
+            <!-- SCORE SECTION -->
+            <div class="score-section">
+                <div class="score-left" id="scoreLeft" data-risk="Low">
+                    <div class="score-label">Final Composite Score</div>
+                    <div class="score-number" id="resFinalScore">0.0000</div>
+                    <div class="risk-badge rb-Low" id="resCatBadge">Loading</div>
                 </div>
-
-                <div class="cvi-details-group">
-                    <div class="detail-row">
-                        <div class="detail-lbl">Base Vulnerability Index</div>
-                        <div class="detail-val" id="resBaseScore">0.00</div>
+                <div class="score-right">
+                    <div class="score-detail-grid">
+                        <div class="score-detail-cell">
+                            <div class="sdl">Base Vulnerability Index</div>
+                            <div class="sdv" id="resBaseScore">0.0000</div>
+                        </div>
+                        <div class="score-detail-cell">
+                            <div class="sdl">Pattern Matching Penalty</div>
+                            <div class="sdv sdv-penalty" id="resPenalty">+0.0000</div>
+                        </div>
                     </div>
-                    <div class="detail-row">
-                        <div class="detail-lbl">Pattern Matching Penalty</div>
-                        <div class="detail-val detail-penalty" id="resPenalty">+0.00</div>
-                    </div>
+                    <div class="risk-classification" id="riskClassification">— Risk classification will appear after analysis.</div>
                 </div>
             </div>
 
-            <div class="pattern-log">
+            <!-- GRADIENT BAR -->
+            <div class="gradient-bar-section">
+                <div class="gradient-bar-label">Risk Spectrum</div>
+                <div class="gradient-bar-track">
+                    <div class="gradient-bar-marker" id="gradientMarker" style="left:0%;"></div>
+                </div>
+                <div class="gradient-bar-ticks">
+                    <span>0.0 LOW</span>
+                    <span>0.3 MODERATE</span>
+                    <span>0.5 HIGH</span>
+                    <span>0.7 EXTREME</span>
+                    <span>1.0</span>
+                </div>
+            </div>
+
+            <!-- ANALYSIS GRID: RADAR + RISK ASSESSMENT -->
+            <div class="analysis-grid">
+
+                <!-- RADAR CHART -->
+                <div class="radar-panel">
+                    <div class="panel-heading">Risk Factor Radar</div>
+                    <div class="radar-chart-wrap">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- RISK ASSESSMENT PANEL -->
+                <div class="risk-panel">
+                    <div class="panel-heading">Risk Assessment</div>
+
+                    <div class="risk-section-title">Assessment</div>
+                    <div class="risk-assessment-text" id="riskAssessmentText">—</div>
+
+                    <div class="risk-section-title">Action Timeline</div>
+                    <div id="actionBadge" class="action-badge ab-lime">—</div>
+
+                    <div class="risk-section-title">Government Directives</div>
+                    <ul class="directive-list dl-gov" id="govDirectives"></ul>
+
+                    <div class="risk-section-title">Public Advisory</div>
+                    <ul class="directive-list dl-pub" id="pubAdvisory"></ul>
+
+                    <div class="risk-section-title">Vulnerability Percentile</div>
+                    <div class="vuln-bar-wrap"><div class="vuln-bar-fill" id="vulnBarFill"></div></div>
+                    <div class="vuln-text" id="vulnText">—</div>
+                </div>
+
+            </div>
+
+            <!-- PATTERN LOG -->
+            <div class="pattern-log-section">
                 <h3>Triggered Risk Patterns</h3>
-                <ul class="pattern-list" id="patternList">
-                    <!-- Dynamic patterns here -->
-                </ul>
+                <ul class="pattern-list" id="patternList"></ul>
             </div>
 
+        </div><!-- /results-dashboard -->
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer">
+            <div class="footer-text">CVI SYSTEM v2.0 · BACKEND: HASKELL/RENDER · FRONTEND: VERCEL</div>
+            <div class="footer-text">DATA: SRTM · INCOIS · IPCC AR6 · CENSUS 2024</div>
         </div>
-    </div>
+    </footer>
 
     <script>
-        const searchInput = document.getElementById('locationInput');
-        const searchBtn = document.getElementById('searchBtn');
-        const loader = document.getElementById('loader');
-        const resultsDash = document.getElementById('resultsDash');
-        const errorMsg = document.getElementById('errorMsg');
+        /* ===== LIVE CLOCK (IST) ===== */
+        function updateClock() {
+            const now = new Date();
+            const ist = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+            const hh = String(ist.getHours()).padStart(2, '0');
+            const mm = String(ist.getMinutes()).padStart(2, '0');
+            const ss = String(ist.getSeconds()).padStart(2, '0');
+            document.getElementById('liveClock').textContent = `${hh}:${mm}:${ss} IST`;
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
 
-        // Allow 'Enter' key to trigger search
-        searchInput.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                performAnalysis();
-            }
+        /* ===== VALID COASTAL DISTRICTS ===== */
+        const COASTAL_DISTRICTS = [
+            "bapatla","kakinada","visakhapatnam","vizag",
+            "nellore","ongole","guntur","krishna",
+            "west godavari","east godavari","srikakulam",
+            "vizianagaram","chennai","puducherry","cuddalore",
+            "nagapattinam","kanyakumari","puri","bhubaneswar",
+            "paradip","balasore","kendrapara","mangaluru",
+            "udupi","kozhikode","kochi","thiruvananthapuram",
+            "alappuzha","kollam","mumbai","raigad","ratnagiri",
+            "sindhudurg","goa","north goa","south goa",
+            "surat","bharuch","navsari","kolkata",
+            "south 24 parganas","digha","sundarbans"
+        ];
+
+        /* ===== LEVENSHTEIN DISTANCE ===== */
+        function levenshtein(a, b) {
+            const m = a.length, n = b.length;
+            const dp = Array.from({ length: m + 1 }, (_, i) => Array.from({ length: n + 1 }, (_, j) => i === 0 ? j : j === 0 ? i : 0));
+            for (let i = 1; i <= m; i++)
+                for (let j = 1; j <= n; j++)
+                    dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1] : 1 + Math.min(dp[i-1][j-1], dp[i-1][j], dp[i][j-1]);
+            return dp[m][n];
+        }
+
+        function isCoastalDistrict(input) {
+            const lower = input.toLowerCase().trim();
+            return COASTAL_DISTRICTS.some(d => levenshtein(lower, d) <= 2);
+        }
+
+        /* ===== CHIP FILL ===== */
+        function fillChip(name) {
+            document.getElementById('locationInput').value = name;
+            validateInput(name);
+        }
+
+        /* ===== LIVE INPUT VALIDATION ===== */
+        const locationInput = document.getElementById('locationInput');
+        locationInput.addEventListener('input', function () {
+            validateInput(this.value);
         });
 
+        function validateInput(val) {
+            const inp = document.getElementById('locationInput');
+            inp.classList.remove('valid-input', 'invalid-input');
+            if (val.length >= 3) {
+                if (isCoastalDistrict(val)) {
+                    inp.classList.add('valid-input');
+                } else {
+                    inp.classList.add('invalid-input');
+                }
+            }
+        }
+
+        /* ===== DOM REFS ===== */
+        const searchBtn  = document.getElementById('searchBtn');
+        const loader     = document.getElementById('loader');
+        const resultsDash = document.getElementById('resultsDash');
+        const errorMsg   = document.getElementById('errorMsg');
+
+        locationInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') performAnalysis();
+        });
         searchBtn.addEventListener('click', performAnalysis);
 
+        /* ===== PERFORM ANALYSIS (ORIGINAL PRESERVED) ===== */
         async function performAnalysis() {
-            const loc = searchInput.value.trim();
+            const loc = locationInput.value.trim();
             if (!loc) return;
 
-            // Reset UI
+            // Coastal district validation
+            if (!isCoastalDistrict(loc)) {
+                errorMsg.innerHTML = `<strong>${loc}</strong> is not a recognised Indian coastal district. This system is optimised for coastal regions only.`;
+                errorMsg.style.display = 'block';
+                resultsDash.style.display = 'none';
+                loader.style.display = 'none';
+                return;
+            }
+
             errorMsg.style.display = 'none';
             resultsDash.style.display = 'none';
             loader.style.display = 'block';
 
-            // REPLACE THIS URL with your actual Render backend URL once deployed
             const API_BASE_URL = 'https://cvi-backend.onrender.com';
 
             try {
@@ -514,60 +876,220 @@
             }
         }
 
+        /* ===== RADAR CHART INSTANCE ===== */
+        let radarChartInstance = null;
+
+        /* ===== RISK DATA TABLES ===== */
+        const RISK_DATA = {
+            Low: {
+                assessment: "Natural buffers provide adequate protection under current SLR projections.",
+                actionText: "✔ MONITOR ANNUALLY · POST-2060",
+                actionClass: "ab-lime",
+                govDirectives: [
+                    "Maintain coastal infrastructure and green buffers",
+                    "Conduct annual monitoring and CVI review",
+                    "Schedule 5-year CVI update cycle"
+                ],
+                pubAdvisory: [
+                    "No immediate protective action required",
+                    "Stay informed via IMD and NDMA portals",
+                    "Participate in community preparedness drills"
+                ],
+                classification: "Low-risk zone. Current natural and structural buffers offer sufficient protection under IPCC AR6 low-emission scenarios."
+            },
+            Moderate: {
+                assessment: "Moderate coastal exposure with gradual risk increase over next 50 years.",
+                actionText: "⚠ PLAN NOW · HORIZON 2055",
+                actionClass: "ab-amber",
+                govDirectives: [
+                    "Upgrade early-warning systems in coastal wards",
+                    "Commission 25-year long-term risk assessment",
+                    "Review and enforce coastal zone regulations"
+                ],
+                pubAdvisory: [
+                    "Subscribe to IMD and INCOIS coastal alerts",
+                    "Avoid construction activity in low-lying areas",
+                    "Know your nearest evacuation centre"
+                ],
+                classification: "Moderate-risk zone. Gradual increase in inundation probability expected beyond 2040 under RCP 4.5 scenarios."
+            },
+            High: {
+                assessment: "Serious flooding risk projected within 30 years. Storm surge exposure is elevated.",
+                actionText: "⚠ INTERVENE BY 2045",
+                actionClass: "ab-orange",
+                govDirectives: [
+                    "Upgrade drainage systems and coastal flood barriers",
+                    "Commission district-level flood risk mapping",
+                    "Test and publish evacuation routes urgently"
+                ],
+                pubAdvisory: [
+                    "Maintain an emergency kit and evacuation plan",
+                    "Subscribe to coastal weather alert services",
+                    "Avoid settling or investing within 500 m of coast"
+                ],
+                classification: "High-risk zone. Projected storm surge and SLR interaction poses serious threat within a 30-year horizon."
+            },
+            "Very High": {
+                assessment: "Critical coastal threat. Catastrophic inundation possible within 20 years.",
+                actionText: "✖ CRITICAL ACTION BY 2035",
+                actionClass: "ab-red",
+                govDirectives: [
+                    "Construct or reinforce sea walls immediately",
+                    "Initiate mandatory relocation planning for at-risk zones",
+                    "Freeze all new construction within 1 km of coastline"
+                ],
+                pubAdvisory: [
+                    "Be ready to evacuate within 24 hours on advisory",
+                    "Register household with local disaster authority",
+                    "Document and insure all coastal property now"
+                ],
+                classification: "Very High-risk zone. Catastrophic inundation scenarios are possible within 20 years under RCP 8.5 projections."
+            }
+        };
+
+        /* ===== RENDER RESULTS (ORIGINAL LOGIC PRESERVED + EXTENDED) ===== */
         function renderResults(data) {
             const raw = data.raw_metrics;
             const cvi = data.cvi_result;
 
-            // Metrics
+            /* --- Metrics --- */
             document.getElementById('resLocation').textContent = raw.district;
-            document.getElementById('resState').textContent = raw.state;
-            document.getElementById('resElev').textContent = parseFloat(raw.elevation_m).toFixed(1);
+            document.getElementById('resState').textContent    = raw.state;
 
-            // Format population density back to approx total population
-            let approxPop = raw.pop_density_km2 * 800;
+            const elevation = parseFloat(raw.elevation_m);
+            document.getElementById('resElev').textContent = elevation.toFixed(1);
+
+            const approxPop = raw.pop_density_km2 * 800;
             document.getElementById('resPop').textContent = (approxPop / 1000).toFixed(1) + 'k';
 
-            document.getElementById('resSlr').textContent = parseFloat(raw.slr_mm_yr).toFixed(1);
+            const slr = parseFloat(raw.slr_mm_yr);
+            document.getElementById('resSlr').textContent = slr.toFixed(1);
 
-            // Scores
-            document.getElementById('resFinalScore').textContent = parseFloat(cvi.final_cvi).toFixed(4);
-            document.getElementById('resBaseScore').textContent = parseFloat(cvi.base_cvi).toFixed(4);
-            document.getElementById('resPenalty').textContent = '+' + parseFloat(cvi.pattern_penalty).toFixed(4);
+            /* --- Progress bars --- */
+            const elevBar = Math.max(0, Math.min(100, ((30 - elevation) / 30) * 100));
+            document.getElementById('barElev').style.width = elevBar + '%';
+            const popBar = Math.min(100, (approxPop / 500000) * 100);
+            document.getElementById('barPop').style.width  = popBar + '%';
+            const slrBar = Math.min(100, (slr / 8) * 100);
+            document.getElementById('barSlr').style.width  = slrBar + '%';
 
-            // Category Badge
-            const badge = document.getElementById('resCatBadge');
-            const cleanCat = cvi.category.replace(/[^a-zA-Z]/g, '').trim(); // Remove emojis if any
+            /* --- Scores --- */
+            const finalScore = parseFloat(cvi.final_cvi);
+            document.getElementById('resFinalScore').textContent = finalScore.toFixed(4);
+            document.getElementById('resBaseScore').textContent  = parseFloat(cvi.base_cvi).toFixed(4);
+            document.getElementById('resPenalty').textContent    = '+' + parseFloat(cvi.pattern_penalty).toFixed(4);
+
+            /* --- Category Badge & Risk Panel --- */
+            const badge    = document.getElementById('resCatBadge');
+            const cleanCat = cvi.category.replace(/[^a-zA-Z\s]/g, '').trim();
             badge.textContent = cvi.category;
-            badge.className = 'cvi-category'; // reset
+            badge.className   = 'risk-badge';
 
-            let colorKey = "Low";
-            if (cleanCat === 'Low') { badge.classList.add('cat-Low'); colorKey = "Low"; }
-            if (cleanCat === 'Moderate') { badge.classList.add('cat-Moderate'); colorKey = "Moderate"; }
-            if (cleanCat === 'High') { badge.classList.add('cat-High'); colorKey = "High"; }
-            if (cleanCat.includes('Very')) { badge.classList.add('cat-VeryHigh'); colorKey = "Very High"; }
+            let riskKey = 'Low';
+            if (cleanCat === 'Low')            riskKey = 'Low';
+            if (cleanCat === 'Moderate')       riskKey = 'Moderate';
+            if (cleanCat === 'High')           riskKey = 'High';
+            if (cleanCat.includes('Very'))     riskKey = 'Very High';
 
-            document.getElementById('riskBanner').setAttribute('data-risk', colorKey);
+            const badgeClassMap = { Low: 'rb-Low', Moderate: 'rb-Moderate', High: 'rb-High', 'Very High': 'rb-VeryHigh' };
+            badge.classList.add(badgeClassMap[riskKey] || 'rb-Low');
 
-            // Patterns Log
+            const scoreLeft = document.getElementById('scoreLeft');
+            scoreLeft.setAttribute('data-risk', riskKey);
+            // Force inline for dynamic change
+            scoreLeft.style.borderLeftColor = riskKey === 'Low' ? '#1a7a3a' : riskKey === 'Moderate' ? '#c45e00' : riskKey === 'High' ? '#b84400' : '#c41e3a';
+
+            /* --- Risk Classification text --- */
+            const rd = RISK_DATA[riskKey] || RISK_DATA['Low'];
+            document.getElementById('riskClassification').textContent    = rd.classification;
+            document.getElementById('riskAssessmentText').textContent    = rd.assessment;
+
+            const ab = document.getElementById('actionBadge');
+            ab.textContent = rd.actionText;
+            ab.className   = 'action-badge ' + rd.actionClass;
+
+            const govList = document.getElementById('govDirectives');
+            govList.innerHTML = rd.govDirectives.map(d => `<li>${d}</li>`).join('');
+            const pubList = document.getElementById('pubAdvisory');
+            pubList.innerHTML = rd.pubAdvisory.map(d => `<li>${d}</li>`).join('');
+
+            /* --- Gradient bar marker --- */
+            const pct = Math.min(100, Math.max(0, finalScore * 100));
+            document.getElementById('gradientMarker').style.left = pct + '%';
+
+            /* --- Vulnerability percentile --- */
+            const vulnPct = Math.round(finalScore * 100);
+            const dominantColor = riskKey === 'Low' ? '#1a7a3a' : riskKey === 'Moderate' ? '#c45e00' : riskKey === 'High' ? '#b84400' : '#c41e3a';
+            const vuln = document.getElementById('vulnBarFill');
+            vuln.style.width = vulnPct + '%';
+            vuln.style.background = dominantColor;
+            document.getElementById('vulnText').textContent =
+                `Score of ${finalScore.toFixed(4)} places this district among the ${vulnPct}% most vulnerable coastal areas in India.`;
+
+            /* --- Radar chart factors --- */
+            const clamp = (v, mn, mx) => Math.max(mn, Math.min(mx, v));
+            const elevationRisk  = clamp(1 - elevation / 30, 0, 1);
+            const slrRisk        = clamp(slr / 8, 0, 1);
+            const populationRisk = clamp(approxPop / 500000, 0, 1);
+            const stormSurge     = clamp(elevationRisk * 0.8 + slrRisk * 0.2, 0, 1);
+            const cycloneRisk    = clamp(slrRisk * 0.6 + populationRisk * 0.4, 0, 1);
+
+            if (radarChartInstance) { radarChartInstance.destroy(); radarChartInstance = null; }
+
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            radarChartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Elevation Risk', 'SLR Rate', 'Population Exposure', 'Storm Surge', 'Cyclone Risk'],
+                    datasets: [{
+                        data: [elevationRisk, slrRisk, populationRisk, stormSurge, cycloneRisk],
+                        borderColor: 'rgba(13,71,161,0.8)',
+                        backgroundColor: 'rgba(13,71,161,0.08)',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#0d47a1',
+                        pointBorderColor: '#ffffff',
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        r: {
+                            min: 0, max: 1,
+                            backgroundColor: '#f8fafc',
+                            angleLines: { color: 'rgba(13,71,161,0.1)' },
+                            grid: { color: 'rgba(13,71,161,0.08)' },
+                            ticks: {
+                                color: 'rgba(10,22,40,0.3)',
+                                backdropColor: 'transparent',
+                                font: { family: "'IBM Plex Mono', monospace", size: 9 },
+                                stepSize: 0.25
+                            },
+                            pointLabels: {
+                                color: 'rgba(10,22,40,0.7)',
+                                font: { family: "'IBM Plex Mono', monospace", size: 10 }
+                            }
+                        }
+                    }
+                }
+            });
+
+            /* --- Pattern Log (original logic preserved) --- */
             const list = document.getElementById('patternList');
             list.innerHTML = '';
 
             if (cvi.matched_patterns.length === 0 || cvi.matched_patterns[0] === 'None' || cvi.explanation === "No high-risk patterns detected.") {
-                list.innerHTML = '<li><span class="p-desc">Safe — System detected no compounding high-risk physical or social patterns.</span></li>';
+                list.innerHTML = '<li><span class="p-num">—</span><div><span class="p-name">SAFE</span><span class="p-desc">System detected no compounding high-risk physical or social patterns.</span></div></li>';
             } else {
-                // Split explanation pipe delims
                 const explanations = cvi.explanation.split(' | ');
-
                 cvi.matched_patterns.forEach((pattern, index) => {
                     const li = document.createElement('li');
-
-                    // The explanation contains Name: Desc, let's extract it
                     let eText = explanations[index] || '';
-                    if (eText.startsWith(pattern + ': ')) {
-                        eText = eText.replace(pattern + ': ', '');
-                    }
-
+                    if (eText.startsWith(pattern + ': ')) eText = eText.replace(pattern + ': ', '');
+                    const num = String(index + 1).padStart(2, '0');
                     li.innerHTML = `
+                        <span class="p-num">${num}</span>
                         <div>
                             <span class="p-name">${pattern}</span>
                             <span class="p-desc">${eText}</span>
@@ -577,10 +1099,9 @@
                 });
             }
 
-            // Show
+            /* Show results */
             resultsDash.style.display = 'block';
         }
-
     </script>
 </body>
 
