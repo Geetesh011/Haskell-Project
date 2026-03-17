@@ -16,6 +16,8 @@ module LogicEngine
 
 import           Data.Text (Text)
 import qualified Data.Text as T
+import           Data.Map (Map, fromList)
+import qualified Data.Map as Map
 import           Types
 
 -- ===========================================================================
@@ -144,6 +146,206 @@ baseCvi d =
 mean :: [Double] -> Double
 mean xs = sum xs / fromIntegral (length xs)
 
+geomorphologyData :: Map String String
+geomorphologyData = fromList
+    [ ("chennai",           "Sandy Beach")
+    , ("mumbai",            "Rocky Cliff")
+    , ("kochi",             "Mangrove")
+    , ("visakhapatnam",     "Sandy Beach")
+    , ("puri",              "Sandy Beach")
+    , ("mangaluru",         "Sandy Beach")
+    , ("kakinada",          "Mangrove")
+    , ("bapatla",           "Sandy Beach")
+    , ("kolkata",           "Delta")
+    , ("surat",             "Mudflat")
+    , ("kanyakumari",       "Rocky Cliff")
+    , ("thiruvananthapuram","Sandy Beach")
+    , ("kozhikode",         "Sandy Beach")
+    , ("alappuzha",         "Mangrove")
+    , ("kollam",            "Sandy Beach")
+    , ("puducherry",        "Sandy Beach")
+    , ("cuddalore",         "Mangrove")
+    , ("nagapattinam",      "Sandy Beach")
+    , ("nellore",           "Mudflat")
+    , ("ongole",            "Sandy Beach")
+    , ("bhubaneswar",       "Sandy Beach")
+    , ("paradip",           "Delta")
+    , ("balasore",          "Sandy Beach")
+    , ("kendrapara",        "Mangrove")
+    , ("udupi",             "Rocky Cliff")
+    , ("raigad",            "Rocky Cliff")
+    , ("ratnagiri",         "Rocky Cliff")
+    , ("sindhudurg",        "Rocky Cliff")
+    , ("goa",               "Sandy Beach")
+    , ("bharuch",           "Mudflat")
+    , ("navsari",           "Sandy Beach")
+    , ("digha",             "Sandy Beach")
+    , ("sundarbans",        "Mangrove")
+    , ("srikakulam",        "Sandy Beach")
+    , ("vizianagaram",      "Sandy Beach")
+    , ("guntur",            "Mudflat")
+    , ("krishna",           "Mangrove")
+    , ("east godavari",     "Mangrove")
+    , ("west godavari",     "Mangrove")
+    ]
+
+shorelineChangeData :: Map String Double
+shorelineChangeData = fromList
+    [ ("chennai",           -1.2)
+    , ("mumbai",            -0.8)
+    , ("kochi",             -0.5)
+    , ("visakhapatnam",     -1.8)
+    , ("puri",              -2.1)
+    , ("mangaluru",         -0.9)
+    , ("kakinada",          -0.7)
+    , ("bapatla",           -1.5)
+    , ("kolkata",           -3.2)
+    , ("surat",             -1.1)
+    , ("kanyakumari",        0.3)
+    , ("thiruvananthapuram", -0.6)
+    , ("kozhikode",         -0.8)
+    , ("alappuzha",         -1.9)
+    , ("kollam",            -0.7)
+    , ("puducherry",        -1.3)
+    , ("cuddalore",         -1.6)
+    , ("nagapattinam",      -2.4)
+    , ("nellore",           -1.0)
+    , ("ongole",            -1.2)
+    , ("bhubaneswar",       -0.9)
+    , ("paradip",           -2.8)
+    , ("balasore",          -1.4)
+    , ("kendrapara",        -2.1)
+    , ("udupi",              0.2)
+    , ("raigad",            -0.4)
+    , ("ratnagiri",          0.1)
+    , ("sindhudurg",         0.3)
+    , ("goa",               -0.6)
+    , ("bharuch",           -0.5)
+    , ("navsari",           -0.8)
+    , ("digha",             -3.5)
+    , ("sundarbans",        -4.2)
+    , ("srikakulam",        -1.6)
+    , ("vizianagaram",      -1.1)
+    , ("guntur",            -0.9)
+    , ("krishna",           -1.7)
+    , ("east godavari",     -1.4)
+    , ("west godavari",     -1.3)
+    ]
+
+tidalRangeData :: Map String Double
+tidalRangeData = fromList
+    [ ("chennai",            1.0)
+    , ("mumbai",             5.2)
+    , ("kochi",              0.8)
+    , ("visakhapatnam",      1.1)
+    , ("puri",               1.6)
+    , ("mangaluru",          1.4)
+    , ("kakinada",           1.2)
+    , ("bapatla",            1.0)
+    , ("kolkata",            4.5)
+    , ("surat",              6.8)
+    , ("kanyakumari",        0.6)
+    , ("thiruvananthapuram", 0.7)
+    , ("kozhikode",          0.9)
+    , ("alappuzha",          0.8)
+    , ("kollam",             0.7)
+    , ("puducherry",         1.0)
+    , ("cuddalore",          1.1)
+    , ("nagapattinam",       1.3)
+    , ("nellore",            1.2)
+    , ("ongole",             1.1)
+    , ("bhubaneswar",        1.8)
+    , ("paradip",            2.1)
+    , ("balasore",           3.4)
+    , ("kendrapara",         3.2)
+    , ("udupi",              1.3)
+    , ("raigad",             4.8)
+    , ("ratnagiri",          3.9)
+    , ("sindhudurg",         2.8)
+    , ("goa",                2.1)
+    , ("bharuch",            7.2)
+    , ("navsari",            5.8)
+    , ("digha",              3.6)
+    , ("sundarbans",         4.8)
+    , ("srikakulam",         1.2)
+    , ("vizianagaram",       1.1)
+    , ("guntur",             1.4)
+    , ("krishna",            1.6)
+    , ("east godavari",      1.5)
+    , ("west godavari",      1.4)
+    ]
+
+socialVulnData :: Map String Double
+socialVulnData = fromList
+    [ ("chennai",            0.38)
+    , ("mumbai",             0.42)
+    , ("kochi",              0.28)
+    , ("visakhapatnam",      0.52)
+    , ("puri",               0.65)
+    , ("mangaluru",          0.31)
+    , ("kakinada",           0.55)
+    , ("bapatla",            0.61)
+    , ("kolkata",            0.58)
+    , ("surat",              0.45)
+    , ("kanyakumari",        0.35)
+    , ("thiruvananthapuram", 0.29)
+    , ("kozhikode",          0.32)
+    , ("alappuzha",          0.41)
+    , ("kollam",             0.38)
+    , ("puducherry",         0.33)
+    , ("cuddalore",          0.58)
+    , ("nagapattinam",       0.62)
+    , ("nellore",            0.54)
+    , ("ongole",             0.57)
+    , ("bhubaneswar",        0.48)
+    , ("paradip",            0.66)
+    , ("balasore",           0.63)
+    , ("kendrapara",         0.68)
+    , ("udupi",              0.27)
+    , ("raigad",             0.49)
+    , ("ratnagiri",          0.44)
+    , ("sindhudurg",         0.39)
+    , ("goa",                0.31)
+    , ("bharuch",            0.47)
+    , ("navsari",            0.43)
+    , ("digha",              0.69)
+    , ("sundarbans",         0.74)
+    , ("srikakulam",         0.64)
+    , ("vizianagaram",       0.61)
+    , ("guntur",             0.53)
+    , ("krishna",            0.51)
+    , ("east godavari",      0.56)
+    , ("west godavari",      0.54)
+    ]
+
+geomorphologyRisk :: String -> Double
+geomorphologyRisk "Sandy Beach" = 0.8
+geomorphologyRisk "Mudflat"     = 0.9
+geomorphologyRisk "Delta"       = 1.0
+geomorphologyRisk "Mangrove"    = 0.5
+geomorphologyRisk "Rocky Cliff" = 0.3
+geomorphologyRisk _             = 0.6
+
+-- New robust CVI formula with 7 factors
+robustCVI :: DistrictData -> Double
+robustCVI d =
+    let elevScore     = ddElevation d
+        slrScore      = ddSlr d
+        popScore      = ddPopDensity d
+        geoRaw        = Map.findWithDefault "Sandy Beach" (T.unpack $ T.toLower $ ddDistrict d) geomorphologyData
+        geoScore      = geomorphologyRisk geoRaw
+        shoreRaw      = Map.findWithDefault 0.0 (T.unpack $ T.toLower $ ddDistrict d) shorelineChangeData
+        shoreScore    = min 1.0 (abs shoreRaw / 5.0)
+        tidalRaw      = Map.findWithDefault 0.0 (T.unpack $ T.toLower $ ddDistrict d) tidalRangeData
+        tidalScore    = min 1.0 (tidalRaw / 8.0)
+        socialScore   = Map.findWithDefault 0.0 (T.unpack $ T.toLower $ ddDistrict d) socialVulnData
+    in  (elevScore  * 0.20) +
+        (slrScore   * 0.20) +
+        (popScore   * 0.15) +
+        (geoScore   * 0.15) +
+        (shoreScore * 0.15) +
+        (tidalScore * 0.10) +
+        (socialScore * 0.05)
 
 -- ===========================================================================
 --  3.2 & 3.3  Final CVI + Categorisation
@@ -164,7 +366,7 @@ computeCvi d =
   let expo    = exposureScore d
       sensi   = sensitivityScore d
       adapt   = adaptiveCapScore d
-      base    = baseCvi d
+      base    = robustCVI d
       (names, penalty, expl) = evaluatePatterns d
       final   = min 1.0 (base + penalty)
       cat     = riskLevelText (categorise final)
