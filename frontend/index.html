@@ -1193,17 +1193,23 @@
 
         async function fetchLiveWeather(lat, lon) {
             try {
-                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m,precipitation&hourly=wave_height&timezone=Asia/Kolkata&forecast_days=1`;
-                const res = await fetch(url);
-                const data = await res.json();
-                const waveHeight = data.hourly && data.hourly.wave_height
-                    ? data.hourly.wave_height[0].toFixed(2)
-                    : 'N/A';
+                const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m,precipitation&timezone=Asia/Kolkata`;
+                const marineUrl = `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}&current=wave_height&timezone=Asia/Kolkata`;
+
+                const [wRes, mRes] = await Promise.all([fetch(weatherUrl), fetch(marineUrl)]);
+                const wData = await wRes.json();
+                const mData = await mRes.json();
+
+                const temp = wData.current?.temperature_2m ?? null;
+                const wind = wData.current?.wind_speed_10m ?? null;
+                const rain = wData.current?.precipitation ?? null;
+                const wave = mData.current?.wave_height ?? null;
+
                 return {
-                    temp: data.current.temperature_2m.toFixed(1),
-                    wind: data.current.wind_speed_10m.toFixed(1),
-                    rain: data.current.precipitation.toFixed(1),
-                    wave: waveHeight
+                    temp: temp !== null ? temp.toFixed(1) : 'N/A',
+                    wind: wind !== null ? wind.toFixed(1) : 'N/A',
+                    rain: rain !== null ? rain.toFixed(1) : 'N/A',
+                    wave: wave !== null ? wave.toFixed(2) : 'N/A'
                 };
             } catch (e) {
                 return { temp: 'N/A', wind: 'N/A', rain: 'N/A', wave: 'N/A' };
