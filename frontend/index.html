@@ -601,6 +601,29 @@
             box-shadow: 0 10px 30px rgba(59,130,246,0.15);
             border-color: rgba(59,130,246,0.3);
         }
+        
+        .metric-card.mc-geo::after {
+            background: linear-gradient(90deg, #8b5cf6, #a78bfa);
+        }
+        .geo-badge {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .geo-sandy  { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid #f59e0b; }
+        .geo-rocky  { background: rgba(107,114,128,0.15); color: #9ca3af; border: 1px solid #6b7280; }
+        .geo-mangrove { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid #22c55e; }
+        .geo-mudflat { background: rgba(249,115,22,0.15); color: #fb923c; border: 1px solid #f97316; }
+        .geo-delta  { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid #ef4444; }
+        .shoreline-positive { color: #4ade80; }
+        .shoreline-negative { color: #f87171; }
+
         .risk-section-title {
             font-family: 'IBM Plex Mono', monospace;
             font-size: 0.62rem;
@@ -876,6 +899,55 @@
                     <div class="metric-sub">Coastal sea wave height</div>
                     <div class="metric-bar-wrap"><div class="metric-bar-fill" style="background:#06b6d4; width:50%;"></div></div>
                     <div class="metric-source">SOURCE: OPEN-METEO · LIVE</div>
+                </div>
+            </div>
+
+            <div class="metrics-grid" id="geoRow" style="display:none; margin-top:12px;">
+                <div class="metric-card mc-geo">
+                    <div class="metric-title">Geomorphology</div>
+                    <div class="metric-value" style="font-size:1rem; padding-top:4px;">
+                        <span id="resGeoType">--</span>
+                    </div>
+                    <div id="resGeoBadge" class="geo-badge geo-sandy" style="margin-bottom:8px;">--</div>
+                    <div class="metric-bar-wrap">
+                        <div class="metric-bar-fill" id="barGeo" style="background:#8b5cf6;"></div>
+                    </div>
+                    <div class="metric-source">SOURCE: COASTAL SURVEY INDIA</div>
+                </div>
+                <div class="metric-card mc-geo">
+                    <div class="metric-title">Shoreline Change</div>
+                    <div class="metric-value">
+                        <span id="resShoreline">--</span>
+                        <span style="font-size:1rem;"> m/yr</span>
+                    </div>
+                    <div class="metric-sub" id="resShorelineLabel">Erosion / Accretion rate</div>
+                    <div class="metric-bar-wrap">
+                        <div class="metric-bar-fill" id="barShoreline" style="background:#8b5cf6;"></div>
+                    </div>
+                    <div class="metric-source">SOURCE: INCOIS SHORELINE</div>
+                </div>
+                <div class="metric-card mc-geo">
+                    <div class="metric-title">Tidal Range</div>
+                    <div class="metric-value">
+                        <span id="resTidal">--</span>
+                        <span style="font-size:1rem;"> m</span>
+                    </div>
+                    <div class="metric-sub">Mean tidal amplitude</div>
+                    <div class="metric-bar-wrap">
+                        <div class="metric-bar-fill" id="barTidal" style="background:#8b5cf6;"></div>
+                    </div>
+                    <div class="metric-source">SOURCE: INCOIS TIDAL DATA</div>
+                </div>
+                <div class="metric-card mc-geo">
+                    <div class="metric-title">Social Vulnerability</div>
+                    <div class="metric-value">
+                        <span id="resSocialVuln">--</span>
+                    </div>
+                    <div class="metric-sub">Composite social risk index</div>
+                    <div class="metric-bar-wrap">
+                        <div class="metric-bar-fill" id="barSocialVuln" style="background:#8b5cf6;"></div>
+                    </div>
+                    <div class="metric-source">SOURCE: CENSUS 2024</div>
                 </div>
             </div>
 
@@ -1237,6 +1309,43 @@
             }
 
             const elevation = parseFloat(raw.elevation_m);
+
+            // New robust CVI fields
+            const geomorphology   = raw.geomorphology || 'N/A';
+            const shorelineChange = parseFloat(raw.shoreline_change_m_yr) || 0;
+            const tidalRange      = parseFloat(raw.tidal_range_m) || 0;
+            const socialVuln      = parseFloat(raw.social_vuln_index) || 0;
+
+            // Geomorphology card
+            document.getElementById('resGeoType').textContent = geomorphology;
+            const geoBadge = document.getElementById('resGeoBadge');
+            geoBadge.textContent = geomorphology;
+            geoBadge.className = 'geo-badge';
+            if (geomorphology === 'Sandy Beach') geoBadge.classList.add('geo-sandy');
+            else if (geomorphology === 'Rocky Cliff') geoBadge.classList.add('geo-rocky');
+            else if (geomorphology === 'Mangrove') geoBadge.classList.add('geo-mangrove');
+            else if (geomorphology === 'Mudflat') geoBadge.classList.add('geo-mudflat');
+            else if (geomorphology === 'Delta') geoBadge.classList.add('geo-delta');
+            const geoRiskMap = {'Sandy Beach':0.8,'Mudflat':0.9,'Delta':1.0,'Mangrove':0.5,'Rocky Cliff':0.3};
+            document.getElementById('barGeo').style.width = ((geoRiskMap[geomorphology] || 0.6) * 100) + '%';
+
+            // Shoreline change card
+            const shoreEl = document.getElementById('resShoreline');
+            shoreEl.textContent = shorelineChange.toFixed(1);
+            shoreEl.className = shorelineChange >= 0 ? 'shoreline-positive' : 'shoreline-negative';
+            document.getElementById('resShorelineLabel').textContent = shorelineChange >= 0 ? '▲ Accretion — coastline growing' : '▼ Erosion — coastline receding';
+            document.getElementById('barShoreline').style.width = Math.min(100, (Math.abs(shorelineChange) / 5) * 100) + '%';
+
+            // Tidal range card
+            document.getElementById('resTidal').textContent = tidalRange.toFixed(1);
+            document.getElementById('barTidal').style.width = Math.min(100, (tidalRange / 8) * 100) + '%';
+
+            // Social vulnerability card
+            document.getElementById('resSocialVuln').textContent = socialVuln.toFixed(2);
+            document.getElementById('barSocialVuln').style.width = (socialVuln * 100) + '%';
+
+            // Show the new row
+            document.getElementById('geoRow').style.display = 'grid';
             document.getElementById('resElev').textContent = elevation.toFixed(1);
 
             const approxPop = raw.pop_density_km2 * 800;
@@ -1315,9 +1424,16 @@
             radarChartInstance = new Chart(ctx, {
                 type: 'radar',
                 data: {
-                    labels: ['Elevation Risk', 'SLR Rate', 'Population Exposure', 'Storm Surge', 'Cyclone Risk'],
+                    labels: ['Elevation Risk', 'SLR Rate', 'Shoreline Change', 'Tidal Range', 'Social Vulnerability', 'Geomorphology'],
                     datasets: [{
-                        data: [elevationRisk, slrRisk, populationRisk, stormSurge, cycloneRisk],
+                        data: [
+                            elevationRisk,
+                            slrRisk,
+                            Math.min(1, Math.abs(shorelineChange) / 5),
+                            Math.min(1, tidalRange / 8),
+                            socialVuln,
+                            geoRiskMap[geomorphology] || 0.6
+                        ],
                         borderColor: 'rgba(59,130,246,0.9)',
                         backgroundColor: 'rgba(59,130,246,0.1)',
                         borderWidth: 2,
