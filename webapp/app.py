@@ -307,6 +307,8 @@ def fetch_real_data(location_name: str) -> dict:
         "shoreline_change_m_yr": str(SHORELINE_DATA.get(district.lower(), 0.0)),
         "tidal_range_m": str(TIDAL_DATA.get(district.lower(), 0.0)),
         "social_vuln_index": str(SOCIAL_VULN_DATA.get(district.lower(), 0.0)),
+        "lookup_district": district.lower(),
+        "api_version": "1.1",
         # IMPROVEMENT 1 — new additive fields
         "coordinates": coordinates,
         "elevation_source": elevation_source,
@@ -353,7 +355,7 @@ def analyze():
         return jsonify({"error": "Location is required"}), 400
 
     # ---- IMPROVEMENT 3: Check cache first ----
-    cache_key = location.lower().strip()
+    cache_key = f"v3:{location.lower().strip()}"
     cached_entry = cache_get(cache_key)
 
     if cached_entry is not None:
