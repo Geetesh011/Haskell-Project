@@ -26,6 +26,7 @@ executable cvi-backend
                      , bytestring
                      , text
                      , vector
+                     , containers
   ghc-options:         -Wall
                        -Wcompat
                        -Widentities
