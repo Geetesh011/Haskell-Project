@@ -11,21 +11,21 @@
     <style>
         /* ===== CSS CUSTOM PROPERTIES ===== */
         :root {
-            --bg:         #ffffff;
-            --bg2:        #f0f4f8;
-            --bg3:        #e8edf2;
-            --panel:      #f8fafc;
-            --border:     #d1dbe6;
-            --border2:    #b8c8d8;
-            --text:       #0a1628;
-            --text2:      #2d4a6b;
-            --text3:      #6b8aaa;
-            --lime:       #1a3a6b;
-            --amber:      #c45e00;
-            --orange:     #b84400;
-            --red:        #c41e3a;
-            --teal:       #0d47a1;
-            --scan-line:  rgba(13, 71, 161, 0.02);
+            --bg:         #0f1117;
+            --bg2:        #131929;
+            --bg3:        #1c2333;
+            --panel:      #161b27;
+            --border:     rgba(59,130,246,0.15);
+            --border2:    rgba(59,130,246,0.25);
+            --text:       #e2e8f0;
+            --text2:      #94a3b8;
+            --text3:      #64748b;
+            --lime:       #3b82f6;
+            --amber:      #f59e0b;
+            --orange:     #f97316;
+            --red:        #ef4444;
+            --teal:       #38bdf8;
+            --scan-line:  rgba(59,130,246,0.03);
         }
 
         /* ===== RESET ===== */
@@ -40,13 +40,85 @@
                     0deg,
                     transparent,
                     transparent 3px,
-                    rgba(13, 71, 161, 0.015) 3px,
-                    rgba(13, 71, 161, 0.015) 4px
+                    rgba(59,130,246,0.015) 3px,
+                    rgba(59,130,246,0.015) 4px
                 ),
-                radial-gradient(circle at 10% 20%, rgba(13, 71, 161, 0.03) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(0, 119, 182, 0.02) 0%, transparent 40%);
+                radial-gradient(circle at 10% 20%, rgba(59,130,246,0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(56,189,248,0.03) 0%, transparent 40%);
             color: var(--text);
             min-height: 100vh;
+        }
+
+        /* ===== SCROLLING BACKGROUND TICKER ===== */
+        .bg-ticker-wrap {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+        }
+
+        .bg-ticker-track {
+            display: flex;
+            width: max-content;
+            animation: ticker-scroll 40s linear infinite;
+            gap: 0;
+        }
+
+        .bg-ticker-track span {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: rgba(59,130,246,0.045);
+            white-space: nowrap;
+            padding: 0 48px;
+            position: relative;
+        }
+
+        .bg-ticker-track span::after {
+            content: '//';
+            margin-left: 48px;
+            color: rgba(59,130,246,0.03);
+        }
+
+        @keyframes ticker-scroll {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .bg-ticker-wrap::before,
+        .bg-ticker-wrap::after {
+            content: 'COASTAL VULNERABILITY INDEX  //  SEA LEVEL RISE  //  HASKELL ENGINE  //  STORM SURGE  //  IPCC AR6  //  GEOSPATIAL MAPPING  //  INCOIS  //  SRTM DEM  //  CYCLONE RISK  //  CVI SYS v2.0  //  INDIA COASTAL DISTRICTS  //  CLIMATE THREAT DETECTION  //  COASTAL VULNERABILITY INDEX  //  SEA LEVEL RISE  //  HASKELL ENGINE  //  STORM SURGE  //  IPCC AR6  //  GEOSPATIAL MAPPING  //';
+            display: block;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: rgba(59,130,246,0.04);
+            white-space: nowrap;
+            width: max-content;
+            animation: ticker-scroll 55s linear infinite;
+        }
+
+        .bg-ticker-wrap::after {
+            color: rgba(56,189,248,0.03);
+            animation: ticker-scroll-reverse 48s linear infinite;
+            font-size: 0.7rem;
+            letter-spacing: 0.28em;
+        }
+
+        @keyframes ticker-scroll-reverse {
+            0%   { transform: translateX(-50%); }
+            100% { transform: translateX(0); }
         }
 
         /* ===== STICKY TOPNAV ===== */
@@ -55,8 +127,9 @@
             top: 0;
             z-index: 100;
             height: 52px;
-            background: #0d2757;
-            border-bottom: 1px solid #1a3a6b;
+            background: #0d1120;
+            border-bottom: 1px solid rgba(59,130,246,0.2);
+            backdrop-filter: blur(12px);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -110,18 +183,20 @@
             max-width: 1280px;
             margin: 0 auto;
             padding: 40px 32px 60px;
+            position: relative;
+            z-index: 1;
         }
 
         /* ===== HEADER ===== */
         .header-section {
-            border-left: 3px solid var(--lime);
+            border-left: 3px solid #3b82f6;
             padding-left: 20px;
             margin-bottom: 40px;
         }
         .header-eyebrow {
             font-family: 'IBM Plex Mono', monospace;
             font-size: 0.7rem;
-            color: var(--lime);
+            color: #60a5fa;
             text-transform: uppercase;
             letter-spacing: 0.14em;
             margin-bottom: 8px;
@@ -146,7 +221,14 @@
         .search-row {
             display: flex;
             max-width: 680px;
-            border: 1px solid var(--border);
+            border: 1px solid rgba(59,130,246,0.3);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(59,130,246,0.08);
+            transition: box-shadow 0.3s ease;
+        }
+        .search-row:focus-within {
+            box-shadow: 0 4px 32px rgba(59,130,246,0.22);
         }
         #locationInput {
             flex: 1;
@@ -154,21 +236,15 @@
             font-size: 0.95rem;
             font-family: 'IBM Plex Sans', sans-serif;
             color: var(--text);
-            background: var(--panel);
+            background: #161b27;
             border: none;
             outline: none;
-            border-radius: 0;
-            transition: border-color 0.2s;
+            border-radius: 14px 0 0 14px;
         }
-        #locationInput::placeholder {
-            color: var(--text3);
-        }
-        #locationInput.valid-input {
-            box-shadow: inset 0 0 0 2px var(--lime);
-        }
-        #locationInput.invalid-input {
-            box-shadow: inset 0 0 0 2px var(--red);
-        }
+        #locationInput::placeholder { color: #4b5a72; }
+        #locationInput.valid-input   { box-shadow: inset 0 0 0 2px #3b82f6; }
+        #locationInput.invalid-input { box-shadow: inset 0 0 0 2px #ef4444; }
+
         #searchBtn {
             padding: 14px 24px;
             font-family: 'IBM Plex Mono', monospace;
@@ -176,16 +252,19 @@
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.06em;
-            background: #0d47a1;
+            background: #3b82f6;
             color: #ffffff;
             border: none;
-            border-radius: 0;
+            border-radius: 0 14px 14px 0;
             cursor: pointer;
             white-space: nowrap;
-            transition: background 0.15s;
+            transition: background 0.2s, box-shadow 0.2s;
         }
-        #searchBtn:hover { background: #1565c0; }
-        #searchBtn:active { background: #0a3a8f; }
+        #searchBtn:hover {
+            background: #60a5fa;
+            box-shadow: 0 0 20px rgba(59,130,246,0.4);
+        }
+        #searchBtn:active { background: #2563eb; }
 
         /* Suggestion chips */
         .suggestion-chips {
@@ -197,27 +276,34 @@
         .chip {
             font-family: 'IBM Plex Mono', monospace;
             font-size: 0.72rem;
-            color: #0d47a1;
-            background: rgba(13,71,161,0.06);
-            border: 1px solid rgba(13,71,161,0.2);
-            padding: 4px 10px;
+            color: #60a5fa;
+            background: rgba(59,130,246,0.08);
+            border: 1px solid rgba(59,130,246,0.25);
+            padding: 5px 14px;
             cursor: pointer;
             text-transform: uppercase;
             letter-spacing: 0.06em;
-            transition: background 0.15s;
+            border-radius: 20px;
+            transition: all 0.2s ease;
         }
-        .chip:hover { background: rgba(13,71,161,0.12); }
+        .chip:hover {
+            background: rgba(59,130,246,0.18);
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59,130,246,0.2);
+        }
 
         /* ===== ERROR BOX ===== */
         .error-msg {
-            border-left: 3px solid #c41e3a;
-            background: #fdecea;
-            color: #8b1a2a;
+            border-left: 3px solid #ef4444;
+            background: rgba(239,68,68,0.1);
+            color: #fca5a5;
             padding: 14px 18px;
             margin-bottom: 20px;
             display: none;
             font-size: 0.9rem;
             line-height: 1.5;
+            border-radius: 10px;
         }
 
         /* ===== LOADER ===== */
@@ -225,7 +311,7 @@
             display: none;
             font-family: 'IBM Plex Mono', monospace;
             font-size: 0.85rem;
-            color: #0d47a1;
+            color: #60a5fa;
             margin-bottom: 20px;
             letter-spacing: 0.08em;
             animation: pulse 1.5s infinite;
@@ -249,25 +335,35 @@
         .metrics-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 1px;
-            background: var(--border);
-            margin-bottom: 1px;
+            gap: 12px;
+            background: transparent;
+            margin-bottom: 12px;
         }
         .metric-card {
-            background: var(--panel);
+            background: #161b27;
             padding: 20px 20px 14px;
             position: relative;
+            border: 1px solid rgba(59,130,246,0.12);
+            border-radius: 14px;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+        }
+        .metric-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(59,130,246,0.15);
+            border-color: rgba(59,130,246,0.35);
         }
         .metric-card::after {
             content: '';
             position: absolute;
             bottom: 0; left: 0; right: 0;
-            height: 2px;
+            height: 3px;
+            border-radius: 0 0 14px 14px;
         }
-        .metric-card.mc-lime::after    { background: #0d47a1; }
-        .metric-card.mc-teal::after    { background: #0077b6; }
-        .metric-card.mc-amber::after   { background: #c45e00; }
-        .metric-card.mc-orange::after  { background: #b84400; }
+        .metric-card.mc-lime::after   { background: linear-gradient(90deg,#3b82f6,#60a5fa); }
+        .metric-card.mc-teal::after   { background: linear-gradient(90deg,#38bdf8,#7dd3fc); }
+        .metric-card.mc-amber::after  { background: linear-gradient(90deg,#f59e0b,#fbbf24); }
+        .metric-card.mc-orange::after { background: linear-gradient(90deg,#f97316,#fb923c); }
 
         .metric-title {
             font-family: 'IBM Plex Mono', monospace;
@@ -291,13 +387,15 @@
         }
         .metric-bar-wrap {
             height: 2px;
-            background: var(--border2);
+            background: rgba(59,130,246,0.1);
             margin-bottom: 8px;
             overflow: hidden;
+            border-radius: 4px;
         }
         .metric-bar-fill {
             height: 100%;
             transition: width 0.6s ease;
+            border-radius: 4px;
         }
         .metric-source {
             font-family: 'IBM Plex Mono', monospace;
@@ -311,21 +409,29 @@
         .score-section {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 1px;
-            background: var(--border);
-            margin-bottom: 1px;
+            gap: 12px;
+            background: transparent;
+            margin-bottom: 12px;
         }
         .score-left {
-            background: var(--panel);
+            background: #161b27;
             padding: 28px 28px 24px;
-            border-left: 4px solid #1a7a3a;
+            border: 1px solid rgba(59,130,246,0.12);
+            border-left: 4px solid #22c55e;
+            border-radius: 14px;
             display: flex;
             flex-direction: column;
             gap: 14px;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.3);
         }
-        .score-left[data-risk="Moderate"] { border-left-color: #c45e00; }
-        .score-left[data-risk="High"]     { border-left-color: #b84400; }
-        .score-left[data-risk="Very High"]{ border-left-color: #c41e3a; }
+        .score-left:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(59,130,246,0.15);
+        }
+        .score-left[data-risk="Moderate"] { border-left-color: #f59e0b; }
+        .score-left[data-risk="High"]     { border-left-color: #f97316; }
+        .score-left[data-risk="Very High"]{ border-left-color: #ef4444; }
 
         .score-label {
             font-family: 'IBM Plex Mono', monospace;
@@ -340,6 +446,7 @@
             font-weight: 600;
             line-height: 1;
             color: var(--text);
+            text-shadow: 0 0 40px rgba(59,130,246,0.35);
         }
         .risk-badge {
             font-family: 'IBM Plex Mono', monospace;
@@ -350,45 +457,57 @@
             padding: 6px 14px;
             display: inline-block;
             width: fit-content;
+            border-radius: 6px;
         }
-        .risk-badge.rb-Low      { background: #e8f5e9; color: #1a7a3a; border: 1px solid #1a7a3a; }
-        .risk-badge.rb-Moderate { background: #fff3e0; color: #c45e00; border: 1px solid #c45e00; }
-        .risk-badge.rb-High     { background: #fff0e0; color: #b84400; border: 1px solid #b84400; }
-        .risk-badge.rb-VeryHigh { background: #fdecea; color: #c41e3a; border: 1px solid #c41e3a; }
+        .risk-badge.rb-Low      { background: rgba(34,197,94,0.15);  color: #4ade80; border: 1px solid #22c55e; }
+        .risk-badge.rb-Moderate { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid #f59e0b; }
+        .risk-badge.rb-High     { background: rgba(249,115,22,0.15); color: #fb923c; border: 1px solid #f97316; }
+        .risk-badge.rb-VeryHigh { background: rgba(239,68,68,0.15);  color: #f87171; border: 1px solid #ef4444; }
 
         .score-right {
-            background: var(--panel);
+            background: #161b27;
             padding: 28px 28px 24px;
+            border: 1px solid rgba(59,130,246,0.12);
+            border-radius: 14px;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+        }
+        .score-right:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(59,130,246,0.15);
         }
         .score-detail-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 1px;
-            background: var(--border);
+            gap: 10px;
+            background: transparent;
             margin-bottom: 16px;
         }
         .score-detail-cell {
-            background: var(--bg);
+            background: #1c2333;
             padding: 14px 16px;
+            border-radius: 10px;
+            border: 1px solid rgba(59,130,246,0.1);
         }
         .sdl { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--text2); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
         .sdv { font-family: 'IBM Plex Mono', monospace; font-size: 1.2rem; font-weight: 600; color: var(--text); }
-        .sdv-penalty { color: var(--red); }
+        .sdv-penalty { color: #f87171; }
         .risk-classification {
             font-size: 0.82rem;
             color: var(--text2);
             line-height: 1.6;
             padding-top: 8px;
-            border-top: 1px solid var(--border);
+            border-top: 1px solid rgba(59,130,246,0.15);
         }
 
         /* ===== GRADIENT BAR ===== */
         .gradient-bar-section {
-            background: var(--panel);
-            border: 1px solid var(--border);
+            background: #161b27;
+            border: 1px solid rgba(59,130,246,0.15);
             border-top: none;
             padding: 20px 24px;
-            margin-bottom: 1px;
+            margin-bottom: 12px;
+            border-radius: 0 0 14px 14px;
         }
         .gradient-bar-label {
             font-family: 'IBM Plex Mono', monospace;
@@ -400,21 +519,22 @@
         }
         .gradient-bar-track {
             position: relative;
-            height: 6px;
-            background: linear-gradient(to right, var(--lime), var(--amber), var(--orange), var(--red));
+            height: 8px;
+            background: linear-gradient(to right, #3b82f6, #f59e0b, #f97316, #ef4444);
             margin-bottom: 8px;
+            border-radius: 6px;
         }
         .gradient-bar-marker {
             position: absolute;
             top: 50%;
             transform: translate(-50%, -50%);
-            width: 12px;
-            height: 12px;
-            background: #fff;
-            border: 2px solid var(--bg);
+            width: 14px;
+            height: 14px;
+            background: #e2e8f0;
+            border: 2px solid #0f1117;
             border-radius: 50%;
             transition: left 0.8s cubic-bezier(0.4,0,0.2,1);
-            box-shadow: 0 0 6px rgba(255,255,255,0.5);
+            box-shadow: 0 0 10px rgba(59,130,246,0.6);
         }
         .gradient-bar-ticks {
             display: flex;
@@ -431,25 +551,34 @@
         .analysis-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 1px;
-            background: var(--border);
-            margin-bottom: 1px;
+            gap: 12px;
+            background: transparent;
+            margin-bottom: 12px;
         }
 
         /* ===== RADAR CHART ===== */
         .radar-panel {
-            background: var(--panel);
+            background: #161b27;
             padding: 24px;
+            border: 1px solid rgba(59,130,246,0.12);
+            border-radius: 14px;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+        }
+        .radar-panel:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(59,130,246,0.15);
+            border-color: rgba(59,130,246,0.3);
         }
         .panel-heading {
             font-family: 'IBM Plex Mono', monospace;
             font-size: 0.68rem;
-            color: #2d4a6b;
+            color: #60a5fa;
             text-transform: uppercase;
             letter-spacing: 0.1em;
             margin-bottom: 18px;
             padding-bottom: 10px;
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid rgba(59,130,246,0.15);
         }
         .radar-chart-wrap {
             position: relative;
@@ -459,9 +588,18 @@
 
         /* ===== RISK ASSESSMENT PANEL ===== */
         .risk-panel {
-            background: var(--panel);
+            background: #161b27;
             padding: 24px;
             overflow-y: auto;
+            border: 1px solid rgba(59,130,246,0.12);
+            border-radius: 14px;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+        }
+        .risk-panel:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(59,130,246,0.15);
+            border-color: rgba(59,130,246,0.3);
         }
         .risk-section-title {
             font-family: 'IBM Plex Mono', monospace;
@@ -486,11 +624,12 @@
             margin: 4px 0 12px;
             text-transform: uppercase;
             letter-spacing: 0.06em;
+            border-radius: 6px;
         }
-        .action-badge.ab-lime   { background: #e8f5e9; color: #1a7a3a; border: 1px solid #1a7a3a; }
-        .action-badge.ab-amber  { background: #fff3e0; color: #c45e00; border: 1px solid #c45e00; }
-        .action-badge.ab-orange { background: #fff0e0; color: #b84400; border: 1px solid #b84400; }
-        .action-badge.ab-red    { background: #fdecea; color: #c41e3a; border: 1px solid #c41e3a; }
+        .action-badge.ab-lime   { background: rgba(34,197,94,0.12);  color: #4ade80; border: 1px solid #22c55e; }
+        .action-badge.ab-amber  { background: rgba(245,158,11,0.12); color: #fbbf24; border: 1px solid #f59e0b; }
+        .action-badge.ab-orange { background: rgba(249,115,22,0.12); color: #fb923c; border: 1px solid #f97316; }
+        .action-badge.ab-red    { background: rgba(239,68,68,0.12);  color: #f87171; border: 1px solid #ef4444; }
 
         .directive-list {
             list-style: none;
@@ -508,33 +647,34 @@
             content: '›';
             position: absolute;
             left: 0;
-            color: #0d47a1;
             font-weight: 700;
         }
-        .directive-list.dl-gov li::before { color: #0d47a1; }
-        .directive-list.dl-pub li::before { color: #c45e00; }
+        .directive-list.dl-gov li::before { color: #60a5fa; }
+        .directive-list.dl-pub li::before { color: #fbbf24; }
 
-        .vuln-bar-wrap { height: 3px; background: #e8edf2; margin: 8px 0; overflow: hidden; }
-        .vuln-bar-fill { height: 100%; transition: width 0.8s ease; }
+        .vuln-bar-wrap { height: 3px; background: rgba(59,130,246,0.1); margin: 8px 0; overflow: hidden; border-radius: 4px; }
+        .vuln-bar-fill { height: 100%; transition: width 0.8s ease; border-radius: 4px; }
         .vuln-text { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--text2); line-height: 1.5; }
 
         /* ===== PATTERN LOG ===== */
         .pattern-log-section {
-            background: var(--panel);
-            border-left: 3px solid #0d47a1;
-            border-top: 1px solid var(--border);
+            background: #161b27;
+            border-left: 3px solid #3b82f6;
+            border-top: 1px solid rgba(59,130,246,0.15);
+            border-radius: 14px;
             padding: 24px;
-            margin-bottom: 1px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.3);
         }
         .pattern-log-section h3 {
             font-family: 'IBM Plex Mono', monospace;
             font-size: 0.68rem;
-            color: #0d47a1;
+            color: #60a5fa;
             text-transform: uppercase;
             letter-spacing: 0.1em;
             margin-bottom: 16px;
             padding-bottom: 10px;
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid rgba(59,130,246,0.15);
         }
         .pattern-list { list-style: none; margin: 0; padding: 0; }
         .pattern-list li {
@@ -542,18 +682,25 @@
             align-items: flex-start;
             gap: 14px;
             padding: 12px 14px;
-            background: rgba(13,71,161,0.02);
-            border-top: 1px solid var(--border);
-            border-radius: 0;
+            background: rgba(59,130,246,0.04);
+            border-top: 1px solid rgba(59,130,246,0.08);
+            border-radius: 8px;
+            margin-bottom: 4px;
+            transition: all 0.2s ease;
+        }
+        .pattern-list li:hover {
+            background: rgba(59,130,246,0.1);
+            transform: translateX(4px);
         }
         .pattern-list li:first-child { border-top: none; }
-        .p-num { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: #90b4d4; min-width: 24px; }
-        .p-name { font-family: 'IBM Plex Mono', monospace; font-size: 0.82rem; font-weight: 500; color: #0d47a1; display: block; margin-bottom: 3px; }
+        .p-num  { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: #475569; min-width: 24px; }
+        .p-name { font-family: 'IBM Plex Mono', monospace; font-size: 0.82rem; font-weight: 500; color: #60a5fa; display: block; margin-bottom: 3px; }
         .p-desc { font-size: 0.83rem; color: var(--text2); line-height: 1.5; }
 
         /* ===== FOOTER ===== */
+        footer { position: relative; z-index: 1; }
         .footer {
-            border-top: 1px solid var(--border);
+            border-top: 1px solid rgba(59,130,246,0.12);
             padding: 16px 32px;
             display: flex;
             justify-content: space-between;
@@ -564,7 +711,7 @@
         .footer-text {
             font-family: 'IBM Plex Mono', monospace;
             font-size: 0.62rem;
-            color: var(--text3);
+            color: #475569;
             text-transform: uppercase;
             letter-spacing: 0.06em;
             line-height: 1.6;
@@ -579,8 +726,9 @@
         }
         @media (max-width: 600px) {
             .header-title { font-size: 1.4rem; }
-            .search-row { flex-direction: column; }
-            #searchBtn { width: 100%; }
+            .search-row { flex-direction: column; border-radius: 14px; }
+            #locationInput { border-radius: 14px 14px 0 0; }
+            #searchBtn { width: 100%; border-radius: 0 0 14px 14px; }
             .topnav-title { display: none; }
             .score-number { font-size: 3.5rem; }
         }
@@ -588,6 +736,36 @@
 </head>
 
 <body>
+
+    <!-- SCROLLING BACKGROUND TICKER -->
+    <div class="bg-ticker-wrap">
+        <div class="bg-ticker-track">
+            <span>COASTAL VULNERABILITY INDEX</span>
+            <span>SEA LEVEL RISE MONITORING</span>
+            <span>HASKELL PATTERN ENGINE</span>
+            <span>IPCC AR6 PROJECTIONS</span>
+            <span>STORM SURGE ANALYSIS</span>
+            <span>GEOSPATIAL RISK MAPPING</span>
+            <span>INCOIS DATA FEED</span>
+            <span>SRTM ELEVATION MODEL</span>
+            <span>CYCLONE RISK ASSESSMENT</span>
+            <span>INDIA COASTAL DISTRICTS</span>
+            <span>CLIMATE THREAT DETECTION</span>
+            <span>CVI // SYS v2.0</span>
+            <span>COASTAL VULNERABILITY INDEX</span>
+            <span>SEA LEVEL RISE MONITORING</span>
+            <span>HASKELL PATTERN ENGINE</span>
+            <span>IPCC AR6 PROJECTIONS</span>
+            <span>STORM SURGE ANALYSIS</span>
+            <span>GEOSPATIAL RISK MAPPING</span>
+            <span>INCOIS DATA FEED</span>
+            <span>SRTM ELEVATION MODEL</span>
+            <span>CYCLONE RISK ASSESSMENT</span>
+            <span>INDIA COASTAL DISTRICTS</span>
+            <span>CLIMATE THREAT DETECTION</span>
+            <span>CVI // SYS v2.0</span>
+        </div>
+    </div>
 
     <!-- ===== STICKY TOPNAV ===== -->
     <nav class="topnav">
@@ -703,38 +881,28 @@
                 </div>
             </div>
 
-            <!-- ANALYSIS GRID: RADAR + RISK ASSESSMENT -->
+            <!-- ANALYSIS GRID -->
             <div class="analysis-grid">
-
-                <!-- RADAR CHART -->
                 <div class="radar-panel">
                     <div class="panel-heading">Risk Factor Radar</div>
                     <div class="radar-chart-wrap">
                         <canvas id="radarChart"></canvas>
                     </div>
                 </div>
-
-                <!-- RISK ASSESSMENT PANEL -->
                 <div class="risk-panel">
                     <div class="panel-heading">Risk Assessment</div>
-
                     <div class="risk-section-title">Assessment</div>
                     <div class="risk-assessment-text" id="riskAssessmentText">—</div>
-
                     <div class="risk-section-title">Action Timeline</div>
                     <div id="actionBadge" class="action-badge ab-lime">—</div>
-
                     <div class="risk-section-title">Government Directives</div>
                     <ul class="directive-list dl-gov" id="govDirectives"></ul>
-
                     <div class="risk-section-title">Public Advisory</div>
                     <ul class="directive-list dl-pub" id="pubAdvisory"></ul>
-
                     <div class="risk-section-title">Vulnerability Percentile</div>
                     <div class="vuln-bar-wrap"><div class="vuln-bar-fill" id="vulnBarFill"></div></div>
                     <div class="vuln-text" id="vulnText">—</div>
                 </div>
-
             </div>
 
             <!-- PATTERN LOG -->
@@ -744,7 +912,6 @@
             </div>
 
         </div><!-- /results-dashboard -->
-
     </main>
 
     <!-- FOOTER -->
@@ -823,22 +990,21 @@
         }
 
         /* ===== DOM REFS ===== */
-        const searchBtn  = document.getElementById('searchBtn');
-        const loader     = document.getElementById('loader');
+        const searchBtn   = document.getElementById('searchBtn');
+        const loader      = document.getElementById('loader');
         const resultsDash = document.getElementById('resultsDash');
-        const errorMsg   = document.getElementById('errorMsg');
+        const errorMsg    = document.getElementById('errorMsg');
 
         locationInput.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') performAnalysis();
         });
         searchBtn.addEventListener('click', performAnalysis);
 
-        /* ===== PERFORM ANALYSIS (ORIGINAL PRESERVED) ===== */
+        /* ===== PERFORM ANALYSIS ===== */
         async function performAnalysis() {
             const loc = locationInput.value.trim();
             if (!loc) return;
 
-            // Coastal district validation
             if (!isCoastalDistrict(loc)) {
                 errorMsg.innerHTML = `<strong>${loc}</strong> is not a recognised Indian coastal district. This system is optimised for coastal regions only.`;
                 errorMsg.style.display = 'block';
@@ -947,12 +1113,11 @@
             }
         };
 
-        /* ===== RENDER RESULTS (ORIGINAL LOGIC PRESERVED + EXTENDED) ===== */
+        /* ===== RENDER RESULTS ===== */
         function renderResults(data) {
             const raw = data.raw_metrics;
             const cvi = data.cvi_result;
 
-            /* --- Metrics --- */
             document.getElementById('resLocation').textContent = raw.district;
             document.getElementById('resState').textContent    = raw.state;
 
@@ -960,12 +1125,16 @@
             document.getElementById('resElev').textContent = elevation.toFixed(1);
 
             const approxPop = raw.pop_density_km2 * 800;
-            document.getElementById('resPop').textContent = (approxPop / 1000).toFixed(1) + 'k';
+
+            /* ===== SMART POPULATION FORMATTING (image fix) ===== */
+            const popDisplay = approxPop >= 1000000
+                ? (approxPop / 1000000).toFixed(2) + 'M'
+                : (approxPop / 1000).toFixed(1) + 'k';
+            document.getElementById('resPop').textContent = popDisplay;
 
             const slr = parseFloat(raw.slr_mm_yr);
             document.getElementById('resSlr').textContent = slr.toFixed(1);
 
-            /* --- Progress bars --- */
             const elevBar = Math.max(0, Math.min(100, ((30 - elevation) / 30) * 100));
             document.getElementById('barElev').style.width = elevBar + '%';
             const popBar = Math.min(100, (approxPop / 500000) * 100);
@@ -973,60 +1142,51 @@
             const slrBar = Math.min(100, (slr / 8) * 100);
             document.getElementById('barSlr').style.width  = slrBar + '%';
 
-            /* --- Scores --- */
             const finalScore = parseFloat(cvi.final_cvi);
             document.getElementById('resFinalScore').textContent = finalScore.toFixed(4);
             document.getElementById('resBaseScore').textContent  = parseFloat(cvi.base_cvi).toFixed(4);
             document.getElementById('resPenalty').textContent    = '+' + parseFloat(cvi.pattern_penalty).toFixed(4);
 
-            /* --- Category Badge & Risk Panel --- */
             const badge    = document.getElementById('resCatBadge');
             const cleanCat = cvi.category.replace(/[^a-zA-Z\s]/g, '').trim();
             badge.textContent = cvi.category;
             badge.className   = 'risk-badge';
 
             let riskKey = 'Low';
-            if (cleanCat === 'Low')            riskKey = 'Low';
-            if (cleanCat === 'Moderate')       riskKey = 'Moderate';
-            if (cleanCat === 'High')           riskKey = 'High';
-            if (cleanCat.includes('Very'))     riskKey = 'Very High';
+            if (cleanCat === 'Low')        riskKey = 'Low';
+            if (cleanCat === 'Moderate')   riskKey = 'Moderate';
+            if (cleanCat === 'High')       riskKey = 'High';
+            if (cleanCat.includes('Very')) riskKey = 'Very High';
 
             const badgeClassMap = { Low: 'rb-Low', Moderate: 'rb-Moderate', High: 'rb-High', 'Very High': 'rb-VeryHigh' };
             badge.classList.add(badgeClassMap[riskKey] || 'rb-Low');
 
             const scoreLeft = document.getElementById('scoreLeft');
             scoreLeft.setAttribute('data-risk', riskKey);
-            // Force inline for dynamic change
-            scoreLeft.style.borderLeftColor = riskKey === 'Low' ? '#1a7a3a' : riskKey === 'Moderate' ? '#c45e00' : riskKey === 'High' ? '#b84400' : '#c41e3a';
+            scoreLeft.style.borderLeftColor = riskKey === 'Low' ? '#22c55e' : riskKey === 'Moderate' ? '#f59e0b' : riskKey === 'High' ? '#f97316' : '#ef4444';
 
-            /* --- Risk Classification text --- */
             const rd = RISK_DATA[riskKey] || RISK_DATA['Low'];
-            document.getElementById('riskClassification').textContent    = rd.classification;
-            document.getElementById('riskAssessmentText').textContent    = rd.assessment;
+            document.getElementById('riskClassification').textContent  = rd.classification;
+            document.getElementById('riskAssessmentText').textContent  = rd.assessment;
 
             const ab = document.getElementById('actionBadge');
             ab.textContent = rd.actionText;
             ab.className   = 'action-badge ' + rd.actionClass;
 
-            const govList = document.getElementById('govDirectives');
-            govList.innerHTML = rd.govDirectives.map(d => `<li>${d}</li>`).join('');
-            const pubList = document.getElementById('pubAdvisory');
-            pubList.innerHTML = rd.pubAdvisory.map(d => `<li>${d}</li>`).join('');
+            document.getElementById('govDirectives').innerHTML = rd.govDirectives.map(d => `<li>${d}</li>`).join('');
+            document.getElementById('pubAdvisory').innerHTML   = rd.pubAdvisory.map(d => `<li>${d}</li>`).join('');
 
-            /* --- Gradient bar marker --- */
             const pct = Math.min(100, Math.max(0, finalScore * 100));
             document.getElementById('gradientMarker').style.left = pct + '%';
 
-            /* --- Vulnerability percentile --- */
             const vulnPct = Math.round(finalScore * 100);
-            const dominantColor = riskKey === 'Low' ? '#1a7a3a' : riskKey === 'Moderate' ? '#c45e00' : riskKey === 'High' ? '#b84400' : '#c41e3a';
+            const dominantColor = riskKey === 'Low' ? '#22c55e' : riskKey === 'Moderate' ? '#f59e0b' : riskKey === 'High' ? '#f97316' : '#ef4444';
             const vuln = document.getElementById('vulnBarFill');
-            vuln.style.width = vulnPct + '%';
+            vuln.style.width      = vulnPct + '%';
             vuln.style.background = dominantColor;
             document.getElementById('vulnText').textContent =
                 `Score of ${finalScore.toFixed(4)} places this district among the ${vulnPct}% most vulnerable coastal areas in India.`;
 
-            /* --- Radar chart factors --- */
             const clamp = (v, mn, mx) => Math.max(mn, Math.min(mx, v));
             const elevationRisk  = clamp(1 - elevation / 30, 0, 1);
             const slrRisk        = clamp(slr / 8, 0, 1);
@@ -1043,12 +1203,12 @@
                     labels: ['Elevation Risk', 'SLR Rate', 'Population Exposure', 'Storm Surge', 'Cyclone Risk'],
                     datasets: [{
                         data: [elevationRisk, slrRisk, populationRisk, stormSurge, cycloneRisk],
-                        borderColor: 'rgba(13,71,161,0.8)',
-                        backgroundColor: 'rgba(13,71,161,0.08)',
+                        borderColor: 'rgba(59,130,246,0.9)',
+                        backgroundColor: 'rgba(59,130,246,0.1)',
                         borderWidth: 2,
-                        pointBackgroundColor: '#0d47a1',
-                        pointBorderColor: '#ffffff',
-                        pointRadius: 4
+                        pointBackgroundColor: '#3b82f6',
+                        pointBorderColor: '#0f1117',
+                        pointRadius: 5
                     }]
                 },
                 options: {
@@ -1057,17 +1217,17 @@
                     scales: {
                         r: {
                             min: 0, max: 1,
-                            backgroundColor: '#f8fafc',
-                            angleLines: { color: 'rgba(13,71,161,0.1)' },
-                            grid: { color: 'rgba(13,71,161,0.08)' },
+                            backgroundColor: 'rgba(22,27,39,0.8)',
+                            angleLines: { color: 'rgba(59,130,246,0.15)' },
+                            grid: { color: 'rgba(59,130,246,0.1)' },
                             ticks: {
-                                color: 'rgba(10,22,40,0.3)',
+                                color: 'rgba(148,163,184,0.5)',
                                 backdropColor: 'transparent',
                                 font: { family: "'IBM Plex Mono', monospace", size: 9 },
                                 stepSize: 0.25
                             },
                             pointLabels: {
-                                color: 'rgba(10,22,40,0.7)',
+                                color: 'rgba(226,232,240,0.8)',
                                 font: { family: "'IBM Plex Mono', monospace", size: 10 }
                             }
                         }
@@ -1075,7 +1235,6 @@
                 }
             });
 
-            /* --- Pattern Log (original logic preserved) --- */
             const list = document.getElementById('patternList');
             list.innerHTML = '';
 
@@ -1099,7 +1258,6 @@
                 });
             }
 
-            /* Show results */
             resultsDash.style.display = 'block';
         }
     </script>
