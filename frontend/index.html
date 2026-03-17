@@ -732,6 +732,10 @@
             .topnav-title { display: none; }
             .score-number { font-size: 3.5rem; }
         }
+        
+        .metric-card.mc-weather::after {
+            background: linear-gradient(90deg, #06b6d4, #22d3ee);
+        }
     </style>
 </head>
 
@@ -841,6 +845,37 @@
                     <div class="metric-sub">Sea level rise rate</div>
                     <div class="metric-bar-wrap"><div class="metric-bar-fill" id="barSlr" style="background:var(--orange);"></div></div>
                     <div class="metric-source">SOURCE: INCOIS / IPCC AR6</div>
+                </div>
+            </div>
+
+            <div class="metrics-grid" id="weatherRow" style="display:none; margin-top:12px;">
+                <div class="metric-card mc-weather">
+                    <div class="metric-title">Temperature</div>
+                    <div class="metric-value"><span id="resTemp">--</span></div>
+                    <div class="metric-sub">Surface air temperature</div>
+                    <div class="metric-bar-wrap"><div class="metric-bar-fill" style="background:#06b6d4; width:60%;"></div></div>
+                    <div class="metric-source">SOURCE: OPEN-METEO · LIVE</div>
+                </div>
+                <div class="metric-card mc-weather">
+                    <div class="metric-title">Wind Speed</div>
+                    <div class="metric-value"><span id="resWind">--</span></div>
+                    <div class="metric-sub">10m above surface</div>
+                    <div class="metric-bar-wrap"><div class="metric-bar-fill" style="background:#06b6d4; width:40%;"></div></div>
+                    <div class="metric-source">SOURCE: OPEN-METEO · LIVE</div>
+                </div>
+                <div class="metric-card mc-weather">
+                    <div class="metric-title">Rainfall</div>
+                    <div class="metric-value"><span id="resRain">--</span></div>
+                    <div class="metric-sub">Precipitation last hour</div>
+                    <div class="metric-bar-wrap"><div class="metric-bar-fill" style="background:#06b6d4; width:20%;"></div></div>
+                    <div class="metric-source">SOURCE: OPEN-METEO · LIVE</div>
+                </div>
+                <div class="metric-card mc-weather">
+                    <div class="metric-title">Weather Status</div>
+                    <div class="metric-value" style="font-size:1rem; padding-top:6px;" id="resWeatherStatus">LIVE</div>
+                    <div class="metric-sub">Real-time conditions</div>
+                    <div class="metric-bar-wrap"><div class="metric-bar-fill" style="background:#06b6d4; width:100%;"></div></div>
+                    <div class="metric-source">SOURCE: OPEN-METEO · LIVE</div>
                 </div>
             </div>
 
@@ -1113,6 +1148,64 @@
             }
         };
 
+        const DISTRICT_COORDS = {
+            "chennai": [13.0827, 80.2707],
+            "mumbai": [19.0760, 72.8777],
+            "kochi": [9.9312, 76.2673],
+            "visakhapatnam": [17.6868, 83.2185],
+            "puri": [19.8135, 85.8312],
+            "mangaluru": [12.9141, 74.8560],
+            "kakinada": [16.9891, 82.2475],
+            "bapatla": [15.9049, 80.4673],
+            "kolkata": [22.5726, 88.3639],
+            "surat": [21.1702, 72.8311],
+            "kanyakumari": [8.0883, 77.5385],
+            "thiruvananthapuram": [8.5241, 76.9366],
+            "kozhikode": [11.2588, 75.7804],
+            "alappuzha": [9.4981, 76.3388],
+            "kollam": [8.8932, 76.6141],
+            "puducherry": [11.9416, 79.8083],
+            "cuddalore": [11.7447, 79.7689],
+            "nagapattinam": [10.7672, 79.8449],
+            "nellore": [14.4426, 79.9865],
+            "ongole": [15.5057, 80.0499],
+            "bhubaneswar": [20.2961, 85.8245],
+            "paradip": [20.3167, 86.6083],
+            "balasore": [21.4934, 86.9330],
+            "kendrapara": [20.5022, 86.4220],
+            "udupi": [13.3409, 74.7421],
+            "raigad": [18.5158, 73.1298],
+            "ratnagiri": [16.9902, 73.3120],
+            "sindhudurg": [16.3497, 73.7031],
+            "goa": [15.2993, 74.1240],
+            "bharuch": [21.7051, 72.9959],
+            "navsari": [20.9467, 72.9520],
+            "digha": [21.6267, 87.5108],
+            "sundarbans": [21.9497, 89.1833],
+            "vizag": [17.6868, 83.2185],
+            "srikakulam": [18.2949, 83.8938],
+            "vizianagaram": [18.1066, 83.3956],
+            "guntur": [16.3067, 80.4365],
+            "krishna": [16.6107, 80.7214],
+            "east godavari": [17.3192, 81.7768],
+            "west godavari": [16.9174, 81.3318]
+        };
+
+        async function fetchLiveWeather(lat, lon) {
+            try {
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m,precipitation&timezone=Asia/Kolkata`;
+                const res = await fetch(url);
+                const data = await res.json();
+                return {
+                    temp: data.current.temperature_2m.toFixed(1),
+                    wind: data.current.wind_speed_10m.toFixed(1),
+                    rain: data.current.precipitation.toFixed(1)
+                };
+            } catch (e) {
+                return { temp: 'N/A', wind: 'N/A', rain: 'N/A' };
+            }
+        }
+
         /* ===== RENDER RESULTS ===== */
         function renderResults(data) {
             const raw = data.raw_metrics;
@@ -1120,6 +1213,17 @@
 
             document.getElementById('resLocation').textContent = raw.district;
             document.getElementById('resState').textContent    = raw.state;
+
+            const districtKey = raw.district.toLowerCase();
+            const coords = DISTRICT_COORDS[districtKey] || DISTRICT_COORDS[locationInput.value.trim().toLowerCase()];
+            if (coords) {
+                fetchLiveWeather(coords[0], coords[1]).then(weather => {
+                    document.getElementById('resTemp').textContent = weather.temp + '°C';
+                    document.getElementById('resWind').textContent = weather.wind + ' km/h';
+                    document.getElementById('resRain').textContent = weather.rain + ' mm';
+                    document.getElementById('weatherRow').style.display = 'grid';
+                });
+            }
 
             const elevation = parseFloat(raw.elevation_m);
             document.getElementById('resElev').textContent = elevation.toFixed(1);
