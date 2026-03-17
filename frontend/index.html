@@ -871,10 +871,10 @@
                     <div class="metric-source">SOURCE: OPEN-METEO · LIVE</div>
                 </div>
                 <div class="metric-card mc-weather">
-                    <div class="metric-title">Weather Status</div>
-                    <div class="metric-value" style="font-size:1rem; padding-top:6px;" id="resWeatherStatus">LIVE</div>
-                    <div class="metric-sub">Real-time conditions</div>
-                    <div class="metric-bar-wrap"><div class="metric-bar-fill" style="background:#06b6d4; width:100%;"></div></div>
+                    <div class="metric-title">Wave Height</div>
+                    <div class="metric-value"><span id="resWave">--</span></div>
+                    <div class="metric-sub">Coastal sea wave height</div>
+                    <div class="metric-bar-wrap"><div class="metric-bar-fill" style="background:#06b6d4; width:50%;"></div></div>
                     <div class="metric-source">SOURCE: OPEN-METEO · LIVE</div>
                 </div>
             </div>
@@ -1193,16 +1193,20 @@
 
         async function fetchLiveWeather(lat, lon) {
             try {
-                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m,precipitation&timezone=Asia/Kolkata`;
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m,precipitation&hourly=wave_height&timezone=Asia/Kolkata&forecast_days=1`;
                 const res = await fetch(url);
                 const data = await res.json();
+                const waveHeight = data.hourly && data.hourly.wave_height
+                    ? data.hourly.wave_height[0].toFixed(2)
+                    : 'N/A';
                 return {
                     temp: data.current.temperature_2m.toFixed(1),
                     wind: data.current.wind_speed_10m.toFixed(1),
-                    rain: data.current.precipitation.toFixed(1)
+                    rain: data.current.precipitation.toFixed(1),
+                    wave: waveHeight
                 };
             } catch (e) {
-                return { temp: 'N/A', wind: 'N/A', rain: 'N/A' };
+                return { temp: 'N/A', wind: 'N/A', rain: 'N/A', wave: 'N/A' };
             }
         }
 
@@ -1221,6 +1225,7 @@
                     document.getElementById('resTemp').textContent = weather.temp + '°C';
                     document.getElementById('resWind').textContent = weather.wind + ' km/h';
                     document.getElementById('resRain').textContent = weather.rain + ' mm';
+                    document.getElementById('resWave').textContent = weather.wave !== 'N/A' ? weather.wave + ' m' : 'N/A';
                     document.getElementById('weatherRow').style.display = 'grid';
                 });
             }
