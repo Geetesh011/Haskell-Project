@@ -936,26 +936,28 @@
 
         <!-- HEADER -->
         <header class="header-section">
-            <div class="header-eyebrow">India Coastal Risk Assessment System</div>
+            <div class="header-eyebrow" id="headerEyebrow">Global Coastal Risk Assessment System</div>
             <h1 class="header-title">Climate Vulnerability Index</h1>
-            <div class="header-subtitle">Real-time geographical analysis &amp; Haskell pattern-matching engine</div>
+            <div class="header-subtitle">Real-time global analysis &amp; Haskell pattern-matching engine · ND-GAIN integrated</div>
         </header>
 
         <!-- SEARCH -->
         <section class="search-section">
             <div class="search-row">
-                <input type="text" id="locationInput" placeholder="Enter a coastal district (e.g. Chennai, Puri, Kochi)…">
+                <input type="text" id="locationInput" placeholder="Enter any coastal city globally (e.g. Miami, Jakarta, Lagos, Mumbai)…">
                 <button id="searchBtn">Analyze →</button>
             </div>
             <div class="suggestion-chips">
-                <span class="chip" onclick="fillChip('Bapatla')">Bapatla</span>
-                <span class="chip" onclick="fillChip('Kakinada')">Kakinada</span>
-                <span class="chip" onclick="fillChip('Chennai')">Chennai</span>
-                <span class="chip" onclick="fillChip('Puri')">Puri</span>
-                <span class="chip" onclick="fillChip('Kochi')">Kochi</span>
-                <span class="chip" onclick="fillChip('Mangaluru')">Mangaluru</span>
+                <span class="chip" onclick="fillChip('Cape Town')">Cape Town</span>
+                <span class="chip" onclick="fillChip('Jakarta')">Jakarta</span>
+                <span class="chip" onclick="fillChip('Miami')">Miami</span>
+                <span class="chip" onclick="fillChip('Lagos')">Lagos</span>
+                <span class="chip" onclick="fillChip('Rotterdam')">Rotterdam</span>
+                <span class="chip" onclick="fillChip('Bangkok')">Bangkok</span>
+                <span class="chip" onclick="fillChip('Sydney')">Sydney</span>
+                <span class="chip" onclick="fillChip('New York')">New York</span>
                 <span class="chip" onclick="fillChip('Mumbai')">Mumbai</span>
-                <span class="chip" onclick="fillChip('Visakhapatnam')">Visakhapatnam</span>
+                <span class="chip" onclick="fillChip('Chennai')">Chennai</span>
             </div>
         </section>
 
@@ -1119,8 +1121,8 @@
             <div class="ndgain-section" id="ndgainSection">
 
               <div class="ndgain-header">
-                <div class="ndgain-title">ND-GAIN ADAPTATION INDEX — COMPUTATIONAL INPUT TO CVI</div>
-                <div class="ndgain-source">
+                <div class="ndgain-title" id="ndgainSectionTitle">ND-GAIN ADAPTATION INDEX — COMPUTATIONAL INPUT TO CVI</div>
+                <div class="ndgain-source" id="ndgainSectionSource">
                   SOURCE: NOTRE DAME GLOBAL ADAPTATION INITIATIVE · 2023 DATA · 187 COUNTRIES
                   · USED AS TARGET DATASET TO COMPUTE ADAPTATION PENALTY IN CVI SCORE
                 </div>
@@ -1132,31 +1134,25 @@
                 <div class="ncp-formula">
                   <div class="ncp-step">
                     <div class="ncp-step-label">BASE CVI SCORE</div>
-                    <div class="ncp-step-val base" id="baseCVIDisplay">0.5709</div>
+                    <div class="ncp-step-val base" id="baseCVIDisplay">—</div>
                     <div class="ncp-step-sub">From elevation, shoreline, tidal, weather data</div>
                   </div>
                   <div class="ncp-op">+</div>
                   <div class="ncp-step">
                     <div class="ncp-step-label">ND-GAIN PENALTY</div>
-                    <div class="ncp-step-val penalty">+0.0700</div>
-                    <div class="ncp-step-sub">
-                      Gap = 0.4846 − 0.3937 = 0.0909<br>
-                      Pattern: gap &gt; 0.09 → penalty = 0.07
-                    </div>
+                    <div class="ncp-step-val penalty" id="ndgainPenaltyDisplay">—</div>
+                    <div class="ncp-step-sub" id="ndgainPenaltySub">Loading country data…</div>
                   </div>
                   <div class="ncp-op">=</div>
                   <div class="ncp-step">
                     <div class="ncp-step-label">FINAL ADJUSTED CVI</div>
-                    <div class="ncp-step-val final" id="finalCVIDisplay">0.6409</div>
+                    <div class="ncp-step-val final" id="finalCVIDisplay">—</div>
                     <div class="ncp-step-sub">ND-GAIN adjusted score · used for classification</div>
                   </div>
                 </div>
                 <div class="ncp-rule-box">
                   <div class="ncp-rule-title">HASKELL PATTERN MATCHING RULE APPLIED</div>
-                  <div class="ncp-rule-code">ndGainPenalty 0.4846 0.3937
-  | gap &gt; 0.09 = 0.07  -- ← HIGH ADAPTATION DEFICIT
-  where gap = vulnerability − readiness
-        -- gap = 0.0909 → rule matched → penalty = +0.07</div>
+                  <div class="ncp-rule-code" id="ndgainRuleCode">Awaiting analysis…</div>
                 </div>
               </div>
 
@@ -1164,30 +1160,30 @@
               <div class="ndgain-cards">
                 <div class="ndgain-card">
                   <div class="ndc-label">ND-GAIN SCORE</div>
-                  <div class="ndc-value" style="color:#38bdf8">45.46</div>
+                  <div class="ndc-value" style="color:#38bdf8" id="ndcScore">—</div>
                   <div class="ndc-sub">out of 100</div>
-                  <div class="ndc-bar"><div class="ndc-fill" style="width:45.46%;background:#38bdf8"></div></div>
-                  <div class="ndc-source">INDIA · 2023</div>
+                  <div class="ndc-bar"><div class="ndc-fill" id="ndcScoreBar" style="background:#38bdf8"></div></div>
+                  <div class="ndc-source" id="ndcScoreSource">— · 2023</div>
                 </div>
                 <div class="ndgain-card">
                   <div class="ndc-label">VULNERABILITY</div>
-                  <div class="ndc-value" style="color:#f97316">0.4846</div>
-                  <div class="ndc-sub">↓ Improving since 1995</div>
-                  <div class="ndc-bar"><div class="ndc-fill" style="width:48.46%;background:#f97316"></div></div>
+                  <div class="ndc-value" style="color:#f97316" id="ndcVuln">—</div>
+                  <div class="ndc-sub" id="ndcVulnSub">↓ Higher = more exposed</div>
+                  <div class="ndc-bar"><div class="ndc-fill" id="ndcVulnBar" style="background:#f97316"></div></div>
                   <div class="ndc-source">LOWER IS SAFER · INPUT TO PENALTY CALC</div>
                 </div>
                 <div class="ndgain-card">
                   <div class="ndc-label">READINESS</div>
-                  <div class="ndc-value" style="color:#4ade80">0.3937</div>
-                  <div class="ndc-sub">↑ Growing since 2015</div>
-                  <div class="ndc-bar"><div class="ndc-fill" style="width:39.37%;background:#4ade80"></div></div>
+                  <div class="ndc-value" style="color:#4ade80" id="ndcReady">—</div>
+                  <div class="ndc-sub" id="ndcReadySub">↑ Higher = better adapted</div>
+                  <div class="ndc-bar"><div class="ndc-fill" id="ndcReadyBar" style="background:#4ade80"></div></div>
                   <div class="ndc-source">HIGHER IS BETTER · INPUT TO PENALTY CALC</div>
                 </div>
                 <div class="ndgain-card">
                   <div class="ndc-label">GLOBAL RANK</div>
-                  <div class="ndc-value" style="color:#f59e0b">112</div>
+                  <div class="ndc-value" style="color:#f59e0b" id="ndcRank">—</div>
                   <div class="ndc-sub">out of 187 countries</div>
-                  <div class="ndc-bar"><div class="ndc-fill" style="width:40%;background:#f59e0b"></div></div>
+                  <div class="ndc-bar"><div class="ndc-fill" id="ndcRankBar" style="background:#f59e0b"></div></div>
                   <div class="ndc-source">LOWER RANK = MORE VULNERABLE</div>
                 </div>
               </div>
@@ -1291,69 +1287,100 @@
         setInterval(updateClock, 1000);
         updateClock();
 
-        /* ===== ND-GAIN COMPUTATION PANEL UPDATER ===== */
-        function updateNDGainPanel(baseCVI, ndgainData) {
-          const penalty = (ndgainData && ndgainData.adaptation_penalty != null) ? ndgainData.adaptation_penalty : 0.07;
-          const finalCVI = Math.min(1.0, baseCVI + penalty).toFixed(4);
-          const baseEl = document.getElementById('baseCVIDisplay');
-          const finalEl = document.getElementById('finalCVIDisplay');
-          if(baseEl) baseEl.textContent = baseCVI.toFixed(4);
-          if(finalEl) finalEl.textContent = finalCVI;
-        }
+        /* ===== ND-GAIN PANEL — FULL DYNAMIC RENDER ===== */
+        function updateNDGainPanel(baseCVI, ndgain, finalCVIFromAPI) {
+            if (!ndgain) return;
 
-        /* ===== VALID COASTAL DISTRICTS ===== */
-        const COASTAL_DISTRICTS = [
-            "bapatla","kakinada","visakhapatnam","vizag",
-            "nellore","ongole","guntur","krishna",
-            "west godavari","east godavari","srikakulam",
-            "vizianagaram","chennai","puducherry","cuddalore",
-            "nagapattinam","kanyakumari","puri","bhubaneswar",
-            "paradip","balasore","kendrapara","mangaluru",
-            "udupi","kozhikode","kochi","thiruvananthapuram",
-            "alappuzha","kollam","mumbai","raigad","ratnagiri",
-            "sindhudurg","goa","north goa","south goa",
-            "surat","bharuch","navsari","kolkata",
-            "south 24 parganas","digha","sundarbans"
-        ];
+            const penalty    = parseFloat(ndgain.adaptation_penalty) || 0.07;
+            const vuln       = parseFloat(ndgain.vulnerability);
+            const readiness  = parseFloat(ndgain.readiness);
+            const gap        = parseFloat(ndgain.adaptation_gap);
+            const score      = parseFloat(ndgain.score);
+            const rank       = parseInt(ndgain.global_rank);
+            const country    = ndgain.country_name || '—';
+            const rule       = ndgain.penalty_rule || '';
+            const finalCVI   = finalCVIFromAPI != null ? finalCVIFromAPI : Math.min(1.0, baseCVI + penalty);
 
-        /* ===== LEVENSHTEIN DISTANCE ===== */
-        function levenshtein(a, b) {
-            const m = a.length, n = b.length;
-            const dp = Array.from({ length: m + 1 }, (_, i) => Array.from({ length: n + 1 }, (_, j) => i === 0 ? j : j === 0 ? i : 0));
-            for (let i = 1; i <= m; i++)
-                for (let j = 1; j <= n; j++)
-                    dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1] : 1 + Math.min(dp[i-1][j-1], dp[i-1][j], dp[i][j-1]);
-            return dp[m][n];
-        }
+            // Section header
+            const secTitle = document.getElementById('ndgainSectionTitle');
+            if (secTitle) secTitle.textContent = `${country.toUpperCase()} ND-GAIN ADAPTATION INDEX — COMPUTATIONAL INPUT TO CVI`;
 
-        function isCoastalDistrict(input) {
-            const lower = input.toLowerCase().trim();
-            return COASTAL_DISTRICTS.some(d => levenshtein(lower, d) <= 2);
+            // Computation panel
+            const baseEl = document.getElementById('baseCVIDisplay');
+            const penEl  = document.getElementById('ndgainPenaltyDisplay');
+            const finEl  = document.getElementById('finalCVIDisplay');
+            const subEl  = document.getElementById('ndgainPenaltySub');
+            const ruleEl = document.getElementById('ndgainRuleCode');
+
+            if (baseEl) baseEl.textContent = isNaN(baseCVI) ? '—' : baseCVI.toFixed(4);
+            if (penEl)  penEl.textContent  = (penalty >= 0 ? '+' : '') + penalty.toFixed(4);
+            if (finEl)  finEl.textContent  = finalCVI.toFixed(4);
+            if (subEl)  subEl.innerHTML    = `Gap = ${vuln.toFixed(4)} − ${readiness.toFixed(4)} = ${gap.toFixed(4)}<br>Pattern: ${rule}`;
+            if (ruleEl) ruleEl.textContent = `ndGainPenalty ${vuln} ${readiness}\n  | ${rule}\n  where gap = vulnerability − readiness\n        -- gap = ${gap.toFixed(4)} → rule matched → penalty = ${penalty >= 0 ? '+' : ''}${penalty.toFixed(2)}`;
+
+            // 4 metric cards
+            const ndcScore = document.getElementById('ndcScore');
+            const ndcScoreBar = document.getElementById('ndcScoreBar');
+            const ndcScoreSource = document.getElementById('ndcScoreSource');
+            if (ndcScore) ndcScore.textContent = score.toFixed(2);
+            if (ndcScoreBar) ndcScoreBar.style.width = score + '%';
+            if (ndcScoreSource) ndcScoreSource.textContent = `${country.toUpperCase()} · 2023`;
+
+            const ndcVuln = document.getElementById('ndcVuln');
+            const ndcVulnBar = document.getElementById('ndcVulnBar');
+            if (ndcVuln) ndcVuln.textContent = vuln.toFixed(4);
+            if (ndcVulnBar) ndcVulnBar.style.width = (vuln * 100) + '%';
+
+            const ndcReady = document.getElementById('ndcReady');
+            const ndcReadyBar = document.getElementById('ndcReadyBar');
+            if (ndcReady) ndcReady.textContent = readiness.toFixed(4);
+            if (ndcReadyBar) ndcReadyBar.style.width = (readiness * 100) + '%';
+
+            const ndcRank = document.getElementById('ndcRank');
+            const ndcRankBar = document.getElementById('ndcRankBar');
+            if (ndcRank) ndcRank.textContent = rank;
+            if (ndcRankBar) ndcRankBar.style.width = ((rank / 187) * 100) + '%';
+
+            // Adaptation gap bars
+            const vfill = document.querySelector('.gap-fill.vuln-fill');
+            const rfill = document.querySelector('.gap-fill.ready-fill');
+            const vval  = document.querySelector('.gap-row:nth-child(2) .gap-val');
+            const rval  = document.querySelector('.gap-row:nth-child(3) .gap-val');
+            if (vfill) vfill.style.width = (vuln * 100) + '%';
+            if (rfill) rfill.style.width = (readiness * 100) + '%';
+            if (vval)  vval.textContent  = vuln.toFixed(4);
+            if (rval)  rval.textContent  = readiness.toFixed(4);
+
+            const interp = document.querySelector('.gap-interpretation');
+            if (interp) interp.textContent = ndgain.interpretation || '';
+
+            // Regional comparison — dynamic from API
+            const rc = document.querySelector('.region-compare');
+            if (rc && ndgain.regional_comparison && ndgain.regional_comparison.length) {
+                const maxScore = Math.max(...ndgain.regional_comparison.map(c => c.score));
+                rc.innerHTML = ndgain.regional_comparison.map(c => `
+                  <div class="rc-item ${c.highlight ? 'rc-highlight' : ''}">
+                    <span class="rc-country">${c.highlight ? '▶ ' : ''}${c.country}</span>
+                    <div class="rc-bar-wrap"><div class="rc-bar" style="width:${(c.score/maxScore*100).toFixed(1)}%;background:${c.highlight ? '#38bdf8' : '#475569'}"></div></div>
+                    <span class="rc-score">${c.score.toFixed(2)}</span>
+                    <span class="rc-rank">#${c.rank}</span>
+                  </div>`).join('');
+            }
         }
 
         /* ===== CHIP FILL ===== */
         function fillChip(name) {
             document.getElementById('locationInput').value = name;
-            validateInput(name);
+            document.getElementById('locationInput').classList.add('valid-input');
         }
 
-        /* ===== LIVE INPUT VALIDATION ===== */
+        /* ===== LIVE INPUT VALIDATION (global — accept any city >= 3 chars) ===== */
         const locationInput = document.getElementById('locationInput');
         locationInput.addEventListener('input', function () {
-            validateInput(this.value);
-        });
-
-        function validateInput(val) {
             const inp = document.getElementById('locationInput');
             inp.classList.remove('valid-input', 'invalid-input');
-            if (val.length >= 3) {
-                if (isCoastalDistrict(val)) {
-                    inp.classList.add('valid-input');
-                } else {
-                    inp.classList.add('invalid-input');
-                }
-            }
-        }
+            if (this.value.trim().length >= 3) inp.classList.add('valid-input');
+        });
 
         /* ===== DOM REFS ===== */
         const searchBtn   = document.getElementById('searchBtn');
@@ -1369,13 +1396,9 @@
         /* ===== PERFORM ANALYSIS ===== */
         async function performAnalysis() {
             const loc = locationInput.value.trim();
-            if (!loc) return;
-
-            if (!isCoastalDistrict(loc)) {
-                errorMsg.innerHTML = `<strong>${loc}</strong> is not a recognised Indian coastal district. This system is optimised for coastal regions only.`;
+            if (!loc || loc.length < 3) {
+                errorMsg.textContent = 'Please enter a coastal city name (at least 3 characters).';
                 errorMsg.style.display = 'block';
-                resultsDash.style.display = 'none';
-                loader.style.display = 'none';
                 return;
             }
 
@@ -1667,8 +1690,9 @@
             const vuln = document.getElementById('vulnBarFill');
             vuln.style.width      = vulnPct + '%';
             vuln.style.background = dominantColor;
+            const countryLabel = (data.ndgain && data.ndgain.country_name) ? data.ndgain.country_name : 'this region';
             document.getElementById('vulnText').textContent =
-                `Score of ${finalScore.toFixed(4)} places this district among the ${vulnPct}% most vulnerable coastal areas in India.`;
+                `Score of ${finalScore.toFixed(4)} places ${countryLabel} among the ${vulnPct}% most vulnerable coastal areas globally.`;
 
             const clamp = (v, mn, mx) => Math.max(mn, Math.min(mx, v));
             const elevationRisk  = clamp(1 - elevation / 30, 0, 1);
@@ -1750,10 +1774,11 @@
 
             resultsDash.style.display = 'block';
 
-            /* Update ND-GAIN computation panel with real base CVI */
-            const baseCVIVal = parseFloat(cvi.base_cvi);
-            const ndgainPayload = cvi.ndgain || null;
-            updateNDGainPanel(baseCVIVal, ndgainPayload);
+            /* Update ND-GAIN panel from top-level data.ndgain (set by Python) */
+            const ndgainPayload  = data.ndgain || cvi.ndgain || null;
+            const baseCVIVal     = parseFloat(cvi.base_cvi) + parseFloat(cvi.pattern_penalty);
+            const finalCVIVal    = parseFloat(cvi.final_cvi);
+            updateNDGainPanel(baseCVIVal, ndgainPayload, finalCVIVal);
         }
     </script>
 </body>
