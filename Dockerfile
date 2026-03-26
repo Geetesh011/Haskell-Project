@@ -34,9 +34,9 @@ COPY webapp /app/webapp
 # Install python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Environment variables
-ENV PORT=5000
+# Render sets PORT dynamically; default to 10000 if not set
+ENV PORT=10000
 EXPOSE $PORT
 
 WORKDIR /app/webapp
-CMD ["sh", "-c", "gunicorn -b 0.0.0.0:$PORT app:app"]
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:$PORT --timeout 120 --workers 2 app:app"]
