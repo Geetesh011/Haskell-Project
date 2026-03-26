@@ -121,62 +121,68 @@
             100% { transform: translateX(0); }
         }
 
-        /* ===== STICKY TOPNAV ===== */
-        .topnav {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            height: 52px;
-            background: #0d1120;
-            border-bottom: 1px solid rgba(59,130,246,0.2);
-            backdrop-filter: blur(12px);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 32px;
+        /* ===== TOPBAR (replaces old topnav) ===== */
+        .topbar {
+          width: 100%;
+          background: linear-gradient(90deg, #0d1f3c 0%, #0a1628 50%, #0d1f3c 100%);
+          border-bottom: 1px solid rgba(56,189,248,0.15);
+          padding: 0 28px;
+          height: 60px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          top: 0;
+          z-index: 100;
+          position: sticky;
+          overflow: hidden;
         }
-        .topnav-logo {
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 1rem;
-            font-weight: 600;
-            color: #4fc3f7;
-            letter-spacing: 0.05em;
+        .topbar-glow-line {
+          position: absolute;
+          top: 0; left: 0; right: 0;
+          height: 1px;
+          background: linear-gradient(90deg, transparent 0%, #38bdf8 25%, #818cf8 50%, #38bdf8 75%, transparent 100%);
         }
-        .topnav-title {
-            font-size: 0.85rem;
-            color: #90b4d4;
-            letter-spacing: 0.04em;
+        .topbar-bottom-line {
+          position: absolute;
+          bottom: 0; left: 0; right: 0;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(56,189,248,0.3), transparent);
         }
-        .topnav-right {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        .live-badge {
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 0.75rem;
-            color: #4fc3f7;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .live-dot {
-            display: inline-block;
-            width: 7px;
-            height: 7px;
-            background: #4fc3f7;
-            border-radius: 50%;
-            animation: blink 1.4s infinite;
-        }
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.2; }
-        }
-        #liveClock {
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 0.8rem;
-            color: #90b4d4;
-        }
+        .topbar-left { display: flex; align-items: center; gap: 16px; }
+        .topbar-logo-block { display: flex; flex-direction: column; line-height: 1.2; }
+        .topbar-logo { font-family: 'IBM Plex Mono', monospace; font-size: 16px; font-weight: 600; color: #38bdf8; letter-spacing: 0.15em; }
+        .logo-slash { color: #818cf8; }
+        .topbar-logo-sub { font-family: 'IBM Plex Mono', monospace; font-size: 8px; color: rgba(148,163,184,0.5); letter-spacing: 0.2em; }
+        .topbar-vdivider { width: 1px; height: 32px; background: linear-gradient(to bottom, transparent, rgba(56,189,248,0.4), transparent); }
+        .topbar-vdivider-sm { width: 1px; height: 20px; background: rgba(56,189,248,0.2); }
+        .topbar-system-info { display: flex; flex-direction: column; gap: 2px; }
+        .topbar-system-title { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 500; color: #e2e8f0; letter-spacing: 0.06em; }
+        .topbar-system-sub { font-family: 'IBM Plex Mono', monospace; font-size: 8px; color: rgba(148,163,184,0.5); letter-spacing: 0.1em; }
+        .topbar-center { display: flex; align-items: center; gap: 10px; }
+        .topbar-status-pill { display: flex; align-items: center; gap: 5px; background: rgba(74,222,128,0.06); border: 1px solid rgba(74,222,128,0.2); padding: 4px 10px; border-radius: 4px; }
+        .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 6px #4ade80; animation: statusPulse 2s infinite; }
+        .status-dot.status-blue { background: #38bdf8; box-shadow: 0 0 6px #38bdf8; }
+        .status-text { font-family: 'IBM Plex Mono', monospace; font-size: 9px; font-weight: 600; color: #4ade80; letter-spacing: 0.12em; }
+        .topbar-right { display: flex; align-items: center; gap: 16px; }
+        .topbar-rank-block, .topbar-score-block { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; }
+        .rank-label, .score-label { font-family: 'IBM Plex Mono', monospace; font-size: 7px; color: rgba(148,163,184,0.5); letter-spacing: 0.15em; }
+        .rank-value { font-family: 'IBM Plex Mono', monospace; font-size: 16px; font-weight: 600; color: #f59e0b; line-height: 1; }
+        .rank-total { font-size: 10px; color: rgba(245,158,11,0.5); }
+        .score-value { font-family: 'IBM Plex Mono', monospace; font-size: 16px; font-weight: 600; color: #38bdf8; line-height: 1; }
+        .topbar-clock-block { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; }
+        .clock-time { font-family: 'IBM Plex Mono', monospace; font-size: 15px; font-weight: 500; color: #e2e8f0; letter-spacing: 0.06em; }
+        .clock-sub { font-family: 'IBM Plex Mono', monospace; font-size: 7px; color: rgba(148,163,184,0.4); letter-spacing: 0.1em; }
+        @keyframes statusPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        .infobar { background: #0d1525; border-bottom: 1px solid rgba(56,189,248,0.08); padding: 5px 28px; display: flex; align-items: center; justify-content: space-between; }
+        .infobar-left, .infobar-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .infobar-label { font-family: 'IBM Plex Mono', monospace; font-size: 8px; color: rgba(148,163,184,0.4); letter-spacing: 0.15em; text-transform: uppercase; }
+        .infobar-chip { font-family: 'IBM Plex Mono', monospace; font-size: 8px; color: #38bdf8; background: rgba(56,189,248,0.06); border: 1px solid rgba(56,189,248,0.15); padding: 2px 8px; border-radius: 3px; letter-spacing: 0.08em; }
+        .infobar-val { font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 600; }
+        .infobar-val.vuln  { color: #f97316; }
+        .infobar-val.ready { color: #4ade80; }
+        .infobar-val.gap   { color: #f59e0b; }
+        .infobar-sep { color: rgba(148,163,184,0.3); font-size: 10px; }
 
         /* ===== MAIN DASHBOARD ===== */
         .dashboard {
@@ -500,6 +506,62 @@
             border-top: 1px solid rgba(59,130,246,0.15);
         }
 
+        /* ===== ND-GAIN SECTION ===== */
+        .ndgain-section { margin-bottom: 1px; animation: fadeIn 0.4s ease; }
+        .ndgain-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+        .ndgain-title { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.15em; color: var(--text2); }
+        .ndgain-source { font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; color: var(--text3); letter-spacing: 0.06em; max-width: 420px; text-align: right; }
+        .ndgain-computation-panel { background: rgba(56,189,248,0.04); border: 1px solid rgba(56,189,248,0.2); border-left: 3px solid #38bdf8; padding: 20px 24px; margin-bottom: 1px; }
+        .ncp-title { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: #38bdf8; letter-spacing: 0.18em; margin-bottom: 16px; }
+        .ncp-formula { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+        .ncp-step { display: flex; flex-direction: column; gap: 4px; background: var(--panel); border: 1px solid var(--border); padding: 12px 16px; min-width: 160px; }
+        .ncp-step-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; color: var(--text3); letter-spacing: 0.15em; }
+        .ncp-step-val { font-family: 'IBM Plex Mono', monospace; font-size: 1.6rem; font-weight: 600; line-height: 1; }
+        .ncp-step-val.base    { color: #94a3b8; }
+        .ncp-step-val.penalty { color: #f59e0b; }
+        .ncp-step-val.final   { color: #f97316; }
+        .ncp-step-sub { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; color: var(--text3); line-height: 1.5; }
+        .ncp-op { font-family: 'IBM Plex Mono', monospace; font-size: 1.8rem; color: var(--text3); font-weight: 300; }
+        .ncp-rule-box { background: #0a0f1a; border: 1px solid rgba(129,140,248,0.2); padding: 12px 16px; }
+        .ncp-rule-title { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; color: #818cf8; letter-spacing: 0.15em; margin-bottom: 8px; }
+        .ncp-rule-code { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; color: #a5f3fc; line-height: 1.7; white-space: pre; }
+        .ndgain-cards { display: grid; grid-template-columns: repeat(4,1fr); gap: 1px; background: var(--border); margin-bottom: 1px; }
+        .ndgain-card { background: var(--panel); padding: 18px 20px; }
+        .ndc-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--text3); letter-spacing: 0.15em; margin-bottom: 6px; }
+        .ndc-value { font-family: 'IBM Plex Mono', monospace; font-size: 1.8rem; font-weight: 600; line-height: 1; margin-bottom: 4px; }
+        .ndc-sub { font-size: 0.75rem; color: var(--text2); margin-bottom: 8px; }
+        .ndc-bar { height: 3px; background: var(--border2); margin-bottom: 8px; overflow: hidden; }
+        .ndc-fill { height: 100%; transition: width 1.2s ease; }
+        .ndc-source { font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; color: var(--text3); letter-spacing: 0.08em; }
+        .ndgain-gap-panel { background: var(--panel); border: 1px solid var(--border); padding: 22px 24px; }
+        .gap-title { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--text3); letter-spacing: 0.18em; margin-bottom: 14px; }
+        .gap-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+        .gap-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--text3); letter-spacing: 0.1em; min-width: 100px; }
+        .gap-track { flex: 1; height: 6px; background: var(--border2); overflow: hidden; }
+        .gap-fill { height: 100%; transition: width 1.2s ease; }
+        .vuln-fill  { background: #f97316; }
+        .ready-fill { background: #4ade80; }
+        .gap-val { font-family: 'IBM Plex Mono', monospace; font-size: 0.82rem; font-weight: 600; min-width: 50px; text-align: right; }
+        .gap-interpretation { font-size: 0.82rem; color: var(--text2); line-height: 1.6; padding: 12px 14px; background: rgba(245,158,11,0.06); border-left: 3px solid #f59e0b; margin: 14px 0; }
+        .gap-trend-title { font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; color: var(--text3); letter-spacing: 0.15em; margin-bottom: 10px; }
+        .gap-trend-bars { display: flex; align-items: flex-end; gap: 6px; height: 80px; margin-bottom: 4px; }
+        .trend-item { display: flex; flex-direction: column; align-items: center; flex: 1; height: 100%; justify-content: flex-end; gap: 4px; }
+        .trend-year { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; color: var(--text3); }
+        .trend-bar-wrap { width: 100%; height: 60px; display: flex; align-items: flex-end; background: rgba(255,255,255,0.03); }
+        .trend-bar { width: 100%; transition: height 1s ease; }
+        .trend-val { font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; color: var(--text3); }
+        .trend-caption { font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; color: var(--text3); letter-spacing: 0.06em; }
+        .region-compare { display: flex; flex-direction: column; gap: 6px; }
+        .rc-item { display: flex; align-items: center; gap: 10px; padding: 5px 0; border-bottom: 1px solid var(--border); }
+        .rc-item:last-child { border-bottom: none; }
+        .rc-highlight { background: rgba(56,189,248,0.04); padding: 5px 8px; border-left: 2px solid #38bdf8; }
+        .rc-country { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; color: var(--text2); min-width: 90px; }
+        .rc-bar-wrap { flex: 1; height: 5px; background: var(--border2); overflow: hidden; }
+        .rc-bar { height: 100%; transition: width 1s ease; }
+        .rc-score { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; font-weight: 600; color: var(--text); min-width: 35px; text-align: right; }
+        .rc-rank { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--text3); min-width: 30px; }
+        @media (max-width: 700px) { .ndgain-cards { grid-template-columns: 1fr 1fr; } .ncp-formula { flex-direction: column; } }
+
         /* ===== GRADIENT BAR ===== */
         .gradient-bar-section {
             background: #161b27;
@@ -794,15 +856,80 @@
         </div>
     </div>
 
-    <!-- ===== STICKY TOPNAV ===== -->
-    <nav class="topnav">
-        <span class="topnav-logo">CVI//SYS</span>
-        <span class="topnav-title">Coastal Climate Vulnerability Index</span>
-        <div class="topnav-right">
-            <span class="live-badge"><span class="live-dot"></span>LIVE</span>
-            <span id="liveClock"></span>
+    <!-- ===== TOPBAR ===== -->
+    <nav class="topbar">
+      <div class="topbar-glow-line"></div>
+
+      <div class="topbar-left">
+        <div class="topbar-logo-block">
+          <div class="topbar-logo">CVI<span class="logo-slash">//</span>SYS</div>
+          <div class="topbar-logo-sub">v2.0 · HASKELL ENGINE</div>
         </div>
+        <div class="topbar-vdivider"></div>
+        <div class="topbar-system-info">
+          <div class="topbar-system-title">COASTAL CLIMATE VULNERABILITY INDEX</div>
+          <div class="topbar-system-sub">INDIA RISK ASSESSMENT · REAL-TIME · ND-GAIN INTEGRATED</div>
+        </div>
+      </div>
+
+      <div class="topbar-center">
+        <div class="topbar-status-pill">
+          <div class="status-dot"></div>
+          <span class="status-text">BACKEND LIVE</span>
+        </div>
+        <div class="topbar-vdivider-sm"></div>
+        <div class="topbar-status-pill">
+          <div class="status-dot"></div>
+          <span class="status-text">ND-GAIN 2023</span>
+        </div>
+        <div class="topbar-vdivider-sm"></div>
+        <div class="topbar-status-pill">
+          <div class="status-dot status-blue"></div>
+          <span class="status-text">OPEN-METEO</span>
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <div class="topbar-rank-block">
+          <div class="rank-label">INDIA ND-GAIN RANK</div>
+          <div class="rank-value">112<span class="rank-total">/187</span></div>
+        </div>
+        <div class="topbar-vdivider"></div>
+        <div class="topbar-score-block">
+          <div class="score-label">ND-GAIN SCORE</div>
+          <div class="score-value">45.46</div>
+        </div>
+        <div class="topbar-vdivider"></div>
+        <div class="topbar-clock-block">
+          <div class="clock-time" id="clockDisplay">--:--:--</div>
+          <div class="clock-sub">IST · UTC+5:30</div>
+        </div>
+      </div>
+
+      <div class="topbar-bottom-line"></div>
     </nav>
+
+    <div class="infobar">
+      <div class="infobar-left">
+        <span class="infobar-label">DATA SOURCES</span>
+        <span class="infobar-chip">SRTM DEM</span>
+        <span class="infobar-chip">INCOIS</span>
+        <span class="infobar-chip">IPCC AR6</span>
+        <span class="infobar-chip">OPEN-METEO</span>
+        <span class="infobar-chip">ND-GAIN 2023</span>
+        <span class="infobar-chip">CENSUS 2024</span>
+      </div>
+      <div class="infobar-right">
+        <span class="infobar-label">VULNERABILITY</span>
+        <span class="infobar-val vuln">0.4846</span>
+        <span class="infobar-sep">·</span>
+        <span class="infobar-label">READINESS</span>
+        <span class="infobar-val ready">0.3937</span>
+        <span class="infobar-sep">·</span>
+        <span class="infobar-label">ADAPTATION GAP PENALTY</span>
+        <span class="infobar-val gap">+0.07 applied to CVI</span>
+      </div>
+    </div>
 
     <!-- ===== MAIN DASHBOARD ===== -->
     <main class="dashboard">
@@ -988,6 +1115,127 @@
                 </div>
             </div>
 
+            <!-- ND-GAIN SECTION -->
+            <div class="ndgain-section" id="ndgainSection">
+
+              <div class="ndgain-header">
+                <div class="ndgain-title">ND-GAIN ADAPTATION INDEX — COMPUTATIONAL INPUT TO CVI</div>
+                <div class="ndgain-source">
+                  SOURCE: NOTRE DAME GLOBAL ADAPTATION INITIATIVE · 2023 DATA · 187 COUNTRIES
+                  · USED AS TARGET DATASET TO COMPUTE ADAPTATION PENALTY IN CVI SCORE
+                </div>
+              </div>
+
+              <!-- HOW ND-GAIN AFFECTS CVI SCORE -->
+              <div class="ndgain-computation-panel">
+                <div class="ncp-title">HOW ND-GAIN DRIVES YOUR CVI SCORE</div>
+                <div class="ncp-formula">
+                  <div class="ncp-step">
+                    <div class="ncp-step-label">BASE CVI SCORE</div>
+                    <div class="ncp-step-val base" id="baseCVIDisplay">0.5709</div>
+                    <div class="ncp-step-sub">From elevation, shoreline, tidal, weather data</div>
+                  </div>
+                  <div class="ncp-op">+</div>
+                  <div class="ncp-step">
+                    <div class="ncp-step-label">ND-GAIN PENALTY</div>
+                    <div class="ncp-step-val penalty">+0.0700</div>
+                    <div class="ncp-step-sub">
+                      Gap = 0.4846 − 0.3937 = 0.0909<br>
+                      Pattern: gap &gt; 0.09 → penalty = 0.07
+                    </div>
+                  </div>
+                  <div class="ncp-op">=</div>
+                  <div class="ncp-step">
+                    <div class="ncp-step-label">FINAL ADJUSTED CVI</div>
+                    <div class="ncp-step-val final" id="finalCVIDisplay">0.6409</div>
+                    <div class="ncp-step-sub">ND-GAIN adjusted score · used for classification</div>
+                  </div>
+                </div>
+                <div class="ncp-rule-box">
+                  <div class="ncp-rule-title">HASKELL PATTERN MATCHING RULE APPLIED</div>
+                  <div class="ncp-rule-code">ndGainPenalty 0.4846 0.3937
+  | gap &gt; 0.09 = 0.07  -- ← HIGH ADAPTATION DEFICIT
+  where gap = vulnerability − readiness
+        -- gap = 0.0909 → rule matched → penalty = +0.07</div>
+                </div>
+              </div>
+
+              <!-- 4 ND-GAIN metric cards -->
+              <div class="ndgain-cards">
+                <div class="ndgain-card">
+                  <div class="ndc-label">ND-GAIN SCORE</div>
+                  <div class="ndc-value" style="color:#38bdf8">45.46</div>
+                  <div class="ndc-sub">out of 100</div>
+                  <div class="ndc-bar"><div class="ndc-fill" style="width:45.46%;background:#38bdf8"></div></div>
+                  <div class="ndc-source">INDIA · 2023</div>
+                </div>
+                <div class="ndgain-card">
+                  <div class="ndc-label">VULNERABILITY</div>
+                  <div class="ndc-value" style="color:#f97316">0.4846</div>
+                  <div class="ndc-sub">↓ Improving since 1995</div>
+                  <div class="ndc-bar"><div class="ndc-fill" style="width:48.46%;background:#f97316"></div></div>
+                  <div class="ndc-source">LOWER IS SAFER · INPUT TO PENALTY CALC</div>
+                </div>
+                <div class="ndgain-card">
+                  <div class="ndc-label">READINESS</div>
+                  <div class="ndc-value" style="color:#4ade80">0.3937</div>
+                  <div class="ndc-sub">↑ Growing since 2015</div>
+                  <div class="ndc-bar"><div class="ndc-fill" style="width:39.37%;background:#4ade80"></div></div>
+                  <div class="ndc-source">HIGHER IS BETTER · INPUT TO PENALTY CALC</div>
+                </div>
+                <div class="ndgain-card">
+                  <div class="ndc-label">GLOBAL RANK</div>
+                  <div class="ndc-value" style="color:#f59e0b">112</div>
+                  <div class="ndc-sub">out of 187 countries</div>
+                  <div class="ndc-bar"><div class="ndc-fill" style="width:40%;background:#f59e0b"></div></div>
+                  <div class="ndc-source">LOWER RANK = MORE VULNERABLE</div>
+                </div>
+              </div>
+
+              <!-- Adaptation Gap Panel -->
+              <div class="ndgain-gap-panel">
+                <div class="gap-title">ADAPTATION GAP ANALYSIS</div>
+                <div class="gap-row">
+                  <span class="gap-label">VULNERABILITY</span>
+                  <div class="gap-track"><div class="gap-fill vuln-fill" style="width:48.46%"></div></div>
+                  <span class="gap-val" style="color:#f97316">0.4846</span>
+                </div>
+                <div class="gap-row">
+                  <span class="gap-label">READINESS</span>
+                  <div class="gap-track"><div class="gap-fill ready-fill" style="width:39.37%"></div></div>
+                  <span class="gap-val" style="color:#4ade80">0.3937</span>
+                </div>
+                <div class="gap-interpretation">
+                  ⚠ India is <strong>23% more vulnerable than it is prepared to handle.</strong>
+                  Adaptation gap = 0.0909. Haskell pattern matching classifies this as
+                  <strong>HIGH DEFICIT</strong> and applies a +0.07 penalty to the district
+                  CVI score — meaning ND-GAIN directly raises the final risk classification.
+                </div>
+                <div class="gap-trend-title">HISTORICAL VULNERABILITY TREND (1995–2023)</div>
+                <div class="gap-trend-bars">
+                  <div class="trend-item"><div class="trend-year">1995</div><div class="trend-bar-wrap"><div class="trend-bar" style="height:54.9%;background:rgba(249,115,22,0.6)"></div></div><div class="trend-val">0.549</div></div>
+                  <div class="trend-item"><div class="trend-year">2000</div><div class="trend-bar-wrap"><div class="trend-bar" style="height:54.4%;background:rgba(249,115,22,0.6)"></div></div><div class="trend-val">0.544</div></div>
+                  <div class="trend-item"><div class="trend-year">2005</div><div class="trend-bar-wrap"><div class="trend-bar" style="height:53.1%;background:rgba(249,115,22,0.6)"></div></div><div class="trend-val">0.531</div></div>
+                  <div class="trend-item"><div class="trend-year">2010</div><div class="trend-bar-wrap"><div class="trend-bar" style="height:52.2%;background:rgba(249,115,22,0.6)"></div></div><div class="trend-val">0.522</div></div>
+                  <div class="trend-item"><div class="trend-year">2015</div><div class="trend-bar-wrap"><div class="trend-bar" style="height:51.8%;background:rgba(249,115,22,0.6)"></div></div><div class="trend-val">0.518</div></div>
+                  <div class="trend-item"><div class="trend-year">2019</div><div class="trend-bar-wrap"><div class="trend-bar" style="height:48.9%;background:rgba(249,115,22,0.7)"></div></div><div class="trend-val">0.489</div></div>
+                  <div class="trend-item"><div class="trend-year">2023</div><div class="trend-bar-wrap"><div class="trend-bar" style="height:48.5%;background:#f97316"></div></div><div class="trend-val">0.485</div></div>
+                </div>
+                <div class="trend-caption">Vulnerability score (0–1) · Decreasing = improving ✓ · Used in penalty computation</div>
+
+                <div class="gap-trend-title" style="margin-top:16px">REGIONAL COMPARISON (2023)</div>
+                <div class="region-compare">
+                  <div class="rc-item"><span class="rc-country">China</span><div class="rc-bar-wrap"><div class="rc-bar" style="width:58.71%;background:#4ade80"></div></div><span class="rc-score">58.71</span><span class="rc-rank">#39</span></div>
+                  <div class="rc-item"><span class="rc-country">Indonesia</span><div class="rc-bar-wrap"><div class="rc-bar" style="width:48.38%;background:#a3e635"></div></div><span class="rc-score">48.38</span><span class="rc-rank">#98</span></div>
+                  <div class="rc-item rc-highlight"><span class="rc-country">▶ India</span><div class="rc-bar-wrap"><div class="rc-bar" style="width:45.46%;background:#38bdf8"></div></div><span class="rc-score">45.46</span><span class="rc-rank">#112</span></div>
+                  <div class="rc-item"><span class="rc-country">Philippines</span><div class="rc-bar-wrap"><div class="rc-bar" style="width:45.61%;background:#fbbf24"></div></div><span class="rc-score">45.61</span><span class="rc-rank">#110</span></div>
+                  <div class="rc-item"><span class="rc-country">Pakistan</span><div class="rc-bar-wrap"><div class="rc-bar" style="width:39.21%;background:#f97316"></div></div><span class="rc-score">39.21</span><span class="rc-rank">#151</span></div>
+                  <div class="rc-item"><span class="rc-country">Bangladesh</span><div class="rc-bar-wrap"><div class="rc-bar" style="width:35.55%;background:#f43f5e"></div></div><span class="rc-score">35.55</span><span class="rc-rank">#174</span></div>
+                </div>
+              </div>
+
+            </div><!-- /ndgain-section -->
+
             <!-- ANALYSIS GRID -->
             <div class="analysis-grid">
                 <div class="radar-panel">
@@ -1030,17 +1278,28 @@
     </footer>
 
     <script>
-        /* ===== LIVE CLOCK (IST) ===== */
+        /* ===== LIVE CLOCK (IST) — topbar #clockDisplay ===== */
         function updateClock() {
             const now = new Date();
-            const ist = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
-            const hh = String(ist.getHours()).padStart(2, '0');
-            const mm = String(ist.getMinutes()).padStart(2, '0');
-            const ss = String(ist.getSeconds()).padStart(2, '0');
-            document.getElementById('liveClock').textContent = `${hh}:${mm}:${ss} IST`;
+            const ist = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
+            const h = String(ist.getUTCHours()).padStart(2,'0');
+            const m = String(ist.getUTCMinutes()).padStart(2,'0');
+            const s = String(ist.getUTCSeconds()).padStart(2,'0');
+            const el = document.getElementById('clockDisplay');
+            if(el) el.textContent = h + ':' + m + ':' + s;
         }
-        updateClock();
         setInterval(updateClock, 1000);
+        updateClock();
+
+        /* ===== ND-GAIN COMPUTATION PANEL UPDATER ===== */
+        function updateNDGainPanel(baseCVI, ndgainData) {
+          const penalty = (ndgainData && ndgainData.adaptation_penalty != null) ? ndgainData.adaptation_penalty : 0.07;
+          const finalCVI = Math.min(1.0, baseCVI + penalty).toFixed(4);
+          const baseEl = document.getElementById('baseCVIDisplay');
+          const finalEl = document.getElementById('finalCVIDisplay');
+          if(baseEl) baseEl.textContent = baseCVI.toFixed(4);
+          if(finalEl) finalEl.textContent = finalCVI;
+        }
 
         /* ===== VALID COASTAL DISTRICTS ===== */
         const COASTAL_DISTRICTS = [
@@ -1490,6 +1749,11 @@
             }
 
             resultsDash.style.display = 'block';
+
+            /* Update ND-GAIN computation panel with real base CVI */
+            const baseCVIVal = parseFloat(cvi.base_cvi);
+            const ndgainPayload = cvi.ndgain || null;
+            updateNDGainPanel(baseCVIVal, ndgainPayload);
         }
     </script>
 </body>

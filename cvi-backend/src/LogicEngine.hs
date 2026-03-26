@@ -12,6 +12,10 @@ This module implements:
 -}
 module LogicEngine
   ( computeAllCvi
+  , ndGainPenalty
+  , ndGainPenaltyRule
+  , applyNDGainToCVI
+  , indiaNDGAIN
   ) where
 
 import           Data.Text (Text)
@@ -19,6 +23,52 @@ import qualified Data.Text as T
 import           Data.Map (Map, fromList)
 import qualified Data.Map as Map
 import           Types
+
+-- | Pattern matching on adaptation gap → returns CVI penalty.
+-- This is the core function that makes ND-GAIN a TARGET DATASET.
+ndGainPenalty :: Double -> Double -> Double
+ndGainPenalty vulnerability readiness
+  | gap > 0.15 = 0.12  -- Critical adaptation deficit
+  | gap > 0.09 = 0.07  -- High adaptation deficit (India matches here)
+  | gap > 0.05 = 0.03  -- Moderate adaptation deficit
+  | gap <= 0.0 = -0.05 -- Readiness exceeds vulnerability (bonus)
+  | otherwise  = 0.01  -- Low deficit
+  where gap = vulnerability - readiness
+
+-- | Describe which guard matched (for frontend display).
+ndGainPenaltyRule :: Double -> Double -> Text
+ndGainPenaltyRule vulnerability readiness
+  | gap > 0.15 = "gap > 0.15 \8594 CRITICAL DEFICIT \8594 penalty = +0.12"
+  | gap > 0.09 = "gap > 0.09 \8594 HIGH DEFICIT \8594 penalty = +0.07"
+  | gap > 0.05 = "gap > 0.05 \8594 MODERATE DEFICIT \8594 penalty = +0.03"
+  | gap <= 0.0 = "gap \8804 0.0 \8594 READINESS SURPLUS \8594 bonus = \8722 0.05"
+  | otherwise  = "gap \8804 0.05 \8594 LOW DEFICIT \8594 penalty = +0.01"
+  where gap = vulnerability - readiness
+
+-- | Apply ND-GAIN penalty to base CVI score, capped at 1.0.
+applyNDGainToCVI :: Double -> Double -> Double -> Double
+applyNDGainToCVI baseCVI vulnerability readiness =
+  min 1.0 (baseCVI + ndGainPenalty vulnerability readiness)
+
+-- | India ND-GAIN 2023 constant — the actual target dataset used in penalty computation.
+indiaNDGAIN :: NDGAINData
+indiaNDGAIN = NDGAINData
+  { ndScore             = 45.46
+  , ndVulnerability     = 0.4846
+  , ndReadiness         = 0.3937
+  , ndAdaptationGap     = 0.4846 - 0.3937
+  , ndAdaptationPenalty = ndGainPenalty 0.4846 0.3937
+  , ndGlobalRank        = 112
+  , ndTotalCountries    = 187
+  , ndRankPercentile    = 40
+  , ndYear              = 2023
+  , ndTrend             = "improving"
+  , ndVulnTrend         = "decreasing"
+  , ndReadyTrend        = "increasing"
+  , ndPenaltyRule       = ndGainPenaltyRule 0.4846 0.3937
+  , ndInterpretation    = "India ranks 112/187. Adaptation gap 0.0909 triggers HIGH DEFICIT rule. Penalty +0.07 added to district CVI score."
+  , ndRegionalContext   = "Better than Bangladesh (#174), Pakistan (#151). Similar to Sri Lanka (#111). Worse than China (#39), Indonesia (#98)."
+  }
 
 -- ===========================================================================
 --  2.1  Thresholds on the normalised [0,1] scale
@@ -366,9 +416,15 @@ computeCvi d =
   let expo    = exposureScore d
       sensi   = sensitivityScore d
       adapt   = adaptiveCapScore d
-      base    = robustCVI d
+      -- Step 1: compute base CVI from physical / geo data
+      baseCVI = robustCVI d
+      -- Step 2: evaluate existing pattern-matching risk patterns
       (names, penalty, expl) = evaluatePatterns d
-      final   = min 1.0 (base + penalty)
+      baseWithPatterns = min 1.0 (baseCVI + penalty)
+      -- Step 3: apply ND-GAIN adaptation penalty on top (the critical step)
+      final   = applyNDGainToCVI baseWithPatterns
+                  (ndVulnerability indiaNDGAIN)
+                  (ndReadiness     indiaNDGAIN)
       cat     = riskLevelText (categorise final)
   in CviResult
        { crDistrict         = ddDistrict d
@@ -376,12 +432,13 @@ computeCvi d =
        , crExposureScore    = roundTo 4 expo
        , crSensitivityScore = roundTo 4 sensi
        , crAdaptiveCapScore = roundTo 4 adapt
-       , crBaseCvi          = roundTo 4 base
+       , crBaseCvi          = roundTo 4 baseCVI
        , crPatternPenalty   = roundTo 2 penalty
        , crFinalCvi         = roundTo 4 final
        , crCategory         = cat
        , crMatchedPatterns  = names
        , crExplanation      = expl
+       , crNDGain           = indiaNDGAIN
        }
 
 computeAllCvi :: [DistrictData] -> [CviResult]

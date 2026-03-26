@@ -11,6 +11,7 @@ with Aeson JSON instances for serialisation / deserialisation.
 module Types
   ( DistrictData (..)
   , CviResult (..)
+  , NDGAINData (..)
   , RiskLevel (..)
   , riskLevelText
   ) where
@@ -19,6 +20,29 @@ import           Data.Aeson   (FromJSON (..), ToJSON (..), object, withObject,
                                (.:), (.=))
 import           Data.Text    (Text)
 import           GHC.Generics (Generic)
+
+-- ===========================================================================
+--  ND-GAIN Data (lives here to avoid circular dependency with LogicEngine)
+-- ===========================================================================
+data NDGAINData = NDGAINData
+  { ndScore             :: !Double
+  , ndVulnerability     :: !Double
+  , ndReadiness         :: !Double
+  , ndAdaptationGap     :: !Double
+  , ndAdaptationPenalty :: !Double
+  , ndGlobalRank        :: !Int
+  , ndTotalCountries    :: !Int
+  , ndRankPercentile    :: !Int
+  , ndYear              :: !Int
+  , ndTrend             :: !Text
+  , ndVulnTrend         :: !Text
+  , ndReadyTrend        :: !Text
+  , ndPenaltyRule       :: !Text
+  , ndInterpretation    :: !Text
+  , ndRegionalContext   :: !Text
+  } deriving (Show, Generic)
+
+instance ToJSON NDGAINData
 
 -- ===========================================================================
 --  Input: Normalised district data received from Python  (all values 0-1)
@@ -77,6 +101,7 @@ data CviResult = CviResult
   , crCategory        :: !Text
   , crMatchedPatterns :: ![Text]
   , crExplanation     :: !Text
+  , crNDGain          :: !NDGAINData
   } deriving (Show, Generic)
 
 instance ToJSON CviResult where
@@ -92,4 +117,5 @@ instance ToJSON CviResult where
     , "category"           .= crCategory r
     , "matched_patterns"   .= crMatchedPatterns r
     , "explanation"        .= crExplanation r
+    , "ndgain"             .= crNDGain r
     ]
