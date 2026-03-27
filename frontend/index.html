@@ -8,6 +8,8 @@
     <meta name="description" content="India Coastal Climate Vulnerability Index — Real-time risk assessment using Haskell pattern-matching engine and geospatial data.">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         /* ===== CSS CUSTOM PROPERTIES ===== */
         :root {
@@ -820,6 +822,109 @@
         
         .metric-card.mc-weather::after {
             background: linear-gradient(90deg, #06b6d4, #22d3ee);
+        }
+
+        /* ===== VISUALIZE BUTTON (injected feature) ===== */
+        #visualizeBtn {
+            padding: 14px 24px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+            color: #ffffff;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+            margin-left: 12px;
+            display: none;
+        }
+        #visualizeBtn:hover {
+            background: linear-gradient(135deg, #a78bfa, #7c3aed);
+            box-shadow: 0 0 24px rgba(139,92,246,0.45);
+            transform: translateY(-2px);
+        }
+        #visualizeBtn:active {
+            background: linear-gradient(135deg, #7c3aed, #5b21b6);
+            transform: translateY(0);
+        }
+
+        /* ===== LEAFLET MAP CONTAINER ===== */
+        #cvi-map-wrapper {
+            display: none;
+            margin-top: 24px;
+            animation: fadeIn 0.4s ease;
+        }
+        #cvi-map-wrapper .map-section-header {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.68rem;
+            color: #a78bfa;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(139,92,246,0.2);
+        }
+        #cvi-leaflet-map {
+            width: 100%;
+            height: 400px;
+            border-radius: 14px;
+            border: 1px solid rgba(139,92,246,0.25);
+            box-shadow: 0 4px 24px rgba(139,92,246,0.12);
+            z-index: 1;
+        }
+        #cvi-map-no-coords {
+            display: none;
+            background: rgba(139,92,246,0.08);
+            border: 1px solid rgba(139,92,246,0.25);
+            border-left: 3px solid #8b5cf6;
+            padding: 18px 22px;
+            border-radius: 10px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.85rem;
+            color: #c4b5fd;
+            letter-spacing: 0.04em;
+        }
+
+        /* ===== MAP COLOR LEGEND ===== */
+        #cvi-map-legend {
+            display: none;
+            margin-top: 12px;
+            padding: 12px 18px;
+            background: #161b27;
+            border: 1px solid rgba(139,92,246,0.15);
+            border-radius: 10px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text2);
+            letter-spacing: 0.06em;
+        }
+        #cvi-map-legend .legend-items {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        #cvi-map-legend .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        #cvi-map-legend .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        #cvi-map-legend .legend-label {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.62rem;
+            color: var(--text2);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
         }
     </style>
 </head>
@@ -1712,6 +1817,222 @@
             const finalCVIVal    = parseFloat(cvi.final_cvi);
             updateNDGainPanel(baseCVIVal, ndgainPayload, finalCVIVal);
         }
+    </script>
+
+    <!-- ===== LEAFLET MAP VISUALIZATION FEATURE (additive — does not modify existing code) ===== -->
+    <script>
+    (function() {
+        'use strict';
+
+        /* --- State --- */
+        let _cviMapInstance = null;
+        let _lastSearchData = null;
+
+        /* --- Inject Visualize button next to search bar --- */
+        const _searchRow = document.querySelector('.search-row');
+        const _vizBtn = document.createElement('button');
+        _vizBtn.id = 'visualizeBtn';
+        _vizBtn.textContent = '🗺 Visualize';
+        _searchRow.parentNode.insertBefore(_vizBtn, _searchRow.nextSibling);
+        // Reposition: place button right after search-row, inside search-section
+        // Wrap search-row and button in a flex container so they sit side-by-side
+        const _searchSection = document.querySelector('.search-section');
+        const _vizRow = document.createElement('div');
+        _vizRow.style.cssText = 'display:flex;align-items:center;gap:0;margin-bottom:0;';
+        _searchSection.insertBefore(_vizRow, _searchRow);
+        _vizRow.appendChild(_searchRow);
+        _vizRow.appendChild(_vizBtn);
+
+        /* --- Inject map wrapper (after results-dashboard) --- */
+        const _resultsDash = document.getElementById('resultsDash');
+        const _mapWrapper = document.createElement('div');
+        _mapWrapper.id = 'cvi-map-wrapper';
+        _mapWrapper.innerHTML = `
+            <div class="map-section-header">🌍 Geospatial Vulnerability Map</div>
+            <div id="cvi-map-no-coords">⚠ Coordinates not available for this city. Map visualization cannot be displayed.</div>
+            <div id="cvi-leaflet-map"></div>
+            <div id="cvi-map-legend">
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <span class="legend-dot" style="background:#22c55e;"></span>
+                        <span class="legend-label">Low (0–33)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot" style="background:#eab308;"></span>
+                        <span class="legend-label">Medium (34–66)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot" style="background:#ef4444;"></span>
+                        <span class="legend-label">High (67–100)</span>
+                    </div>
+                </div>
+            </div>
+        `;
+        _resultsDash.parentNode.insertBefore(_mapWrapper, _resultsDash.nextSibling);
+
+        /* --- Extended coordinates (merge with existing DISTRICT_COORDS) --- */
+        const CITY_COORDS_EXTRA = {
+            'miami': [25.7617, -80.1918],
+            'jakarta': [-6.2088, 106.8456],
+            'lagos': [6.5244, 3.3792],
+            'cape town': [-33.9249, 18.4241],
+            'rotterdam': [51.9225, 4.4792],
+            'bangkok': [13.7563, 100.5018],
+            'sydney': [-33.8688, 151.2093],
+            'new york': [40.7128, -74.0060],
+            'dhaka': [23.8103, 90.4125],
+            'shanghai': [31.2304, 121.4737],
+            'tokyo': [35.6762, 139.6503],
+            'london': [51.5074, -0.1278],
+            'singapore': [1.3521, 103.8198],
+            'hong kong': [22.3193, 114.1694],
+            'new orleans': [29.9511, -90.0715],
+            'venice': [45.4408, 12.3155],
+            'alexandria': [31.2001, 29.9187],
+            'rio de janeiro': [-22.9068, -43.1729],
+            'manila': [14.5995, 120.9842],
+            'ho chi minh city': [10.8231, 106.6297],
+            'durban': [-29.8587, 31.0218],
+            'osaka': [34.6937, 135.5023],
+            'vancouver': [49.2827, -123.1207],
+            'havana': [23.1136, -82.3666],
+            'guayaquil': [-2.1710, -79.9224],
+            'dar es salaam': [-6.7924, 39.2083],
+            'recife': [-8.0476, -34.8770],
+            'abidjan': [5.3600, -4.0083],
+            'mogadishu': [2.0469, 45.3182],
+            'karachi': [24.8607, 67.0011],
+            'maputo': [-25.9692, 32.5732],
+            'colombo': [6.9271, 79.8612]
+        };
+
+        function _getCityCoords(cityName, districtName) {
+            const key1 = cityName.toLowerCase().trim();
+            const key2 = (districtName || '').toLowerCase().trim();
+            return DISTRICT_COORDS[key1] || DISTRICT_COORDS[key2] || CITY_COORDS_EXTRA[key1] || CITY_COORDS_EXTRA[key2] || null;
+        }
+
+        function _getVulnColor(score100) {
+            if (score100 <= 33) return '#22c55e';
+            if (score100 <= 66) return '#eab308';
+            return '#ef4444';
+        }
+
+        function _getVulnLabel(score100) {
+            if (score100 <= 33) return 'Low';
+            if (score100 <= 66) return 'Medium';
+            return 'High';
+        }
+
+        /* --- Show / hide visualize button --- */
+        // Observe when results become visible
+        const _resultsDashEl = document.getElementById('resultsDash');
+        const _observer = new MutationObserver(function() {
+            if (_resultsDashEl.style.display === 'block') {
+                _vizBtn.style.display = 'inline-block';
+            } else {
+                _vizBtn.style.display = 'none';
+                _mapWrapper.style.display = 'none';
+            }
+        });
+        _observer.observe(_resultsDashEl, { attributes: true, attributeFilter: ['style'] });
+
+        /* --- Hook into renderResults to capture data --- */
+        const _origRenderResults = window.renderResults;
+        window.renderResults = function(data) {
+            _lastSearchData = data;
+            _origRenderResults(data);
+        };
+
+        /* --- Visualize button click handler --- */
+        _vizBtn.addEventListener('click', function() {
+            if (!_lastSearchData) return;
+
+            const data = _lastSearchData;
+            const raw = data.raw_metrics;
+            const cvi = data.cvi_result;
+            const ndgain = data.ndgain || cvi.ndgain || null;
+
+            const cityName = document.getElementById('locationInput').value.trim();
+            const districtName = raw.district || '';
+            const coords = _getCityCoords(cityName, districtName);
+
+            const mapDiv = document.getElementById('cvi-leaflet-map');
+            const noCoords = document.getElementById('cvi-map-no-coords');
+            const legendDiv = document.getElementById('cvi-map-legend');
+
+            // Destroy old map
+            if (_cviMapInstance) {
+                _cviMapInstance.remove();
+                _cviMapInstance = null;
+            }
+
+            _mapWrapper.style.display = 'block';
+
+            if (!coords) {
+                noCoords.style.display = 'block';
+                mapDiv.style.display = 'none';
+                legendDiv.style.display = 'none';
+                return;
+            }
+
+            noCoords.style.display = 'none';
+            mapDiv.style.display = 'block';
+            legendDiv.style.display = 'block';
+
+            // Calculate vulnerability score (0-100)
+            const finalScore = parseFloat(cvi.final_cvi);
+            const vulnScore100 = Math.round(Math.min(100, Math.max(0, finalScore * 100)));
+            const markerColor = _getVulnColor(vulnScore100);
+            const vulnLabel = _getVulnLabel(vulnScore100);
+
+            // ND-GAIN info
+            const ndgainScore = ndgain ? (parseFloat(ndgain.score) || 'N/A') : 'N/A';
+            const ndgainDisplay = typeof ndgainScore === 'number' ? ndgainScore.toFixed(2) : ndgainScore;
+
+            // Initialize Leaflet map
+            _cviMapInstance = L.map('cvi-leaflet-map', {
+                zoomControl: true,
+                scrollWheelZoom: true
+            }).setView(coords, 11);
+
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                subdomains: 'abcd',
+                maxZoom: 19
+            }).addTo(_cviMapInstance);
+
+            // Circle marker
+            const circle = L.circleMarker(coords, {
+                radius: 18,
+                fillColor: markerColor,
+                color: markerColor,
+                weight: 2,
+                opacity: 0.9,
+                fillOpacity: 0.35
+            }).addTo(_cviMapInstance);
+
+            // Popup
+            circle.bindPopup(`
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.7;min-width:180px;">
+                    <div style="font-weight:700;font-size:14px;color:#e2e8f0;margin-bottom:6px;">${districtName || cityName}</div>
+                    <div><span style="color:#94a3b8;">CVI Score:</span> <strong>${finalScore.toFixed(4)}</strong></div>
+                    <div><span style="color:#94a3b8;">ND-GAIN Index:</span> <strong>${ndgainDisplay}</strong></div>
+                    <div style="margin-top:6px;padding:3px 8px;border-radius:4px;display:inline-block;font-weight:600;font-size:11px;letter-spacing:0.08em;background:${markerColor}22;color:${markerColor};border:1px solid ${markerColor};">
+                        ${vulnLabel.toUpperCase()} VULNERABILITY
+                    </div>
+                </div>
+            `, { className: 'cvi-popup' }).openPopup();
+
+            // Smooth scroll to map
+            _mapWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // Invalidate size after animation
+            setTimeout(function() {
+                if (_cviMapInstance) _cviMapInstance.invalidateSize();
+            }, 400);
+        });
+    })();
     </script>
 </body>
 
