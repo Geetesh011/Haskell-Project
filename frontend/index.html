@@ -926,6 +926,67 @@
             text-transform: uppercase;
             letter-spacing: 0.1em;
         }
+
+        /* ===== PAGE NAVBAR ===== */
+        .page-navbar {
+            width: 100%;
+            background: linear-gradient(90deg, #080d1a 0%, #0b1425 50%, #080d1a 100%);
+            border-bottom: 1px solid rgba(56,189,248,0.12);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 0 20px;
+            height: 48px;
+            position: sticky;
+            top: 60px;
+            z-index: 99;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .page-navbar::-webkit-scrollbar { display: none; }
+        .nav-btn {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            color: rgba(148,163,184,0.7);
+            background: transparent;
+            border: 1px solid transparent;
+            padding: 6px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .nav-btn:hover {
+            color: #38bdf8;
+            background: rgba(56,189,248,0.07);
+            border-color: rgba(56,189,248,0.2);
+        }
+        .nav-btn.active {
+            color: #38bdf8;
+            background: rgba(56,189,248,0.1);
+            border-color: rgba(56,189,248,0.35);
+            box-shadow: 0 0 14px rgba(56,189,248,0.18), inset 0 0 8px rgba(56,189,248,0.06);
+        }
+        .nav-btn .nav-icon { font-size: 0.9rem; }
+        .page-section { display: none; animation: fadeIn 0.3s ease; }
+        .page-section.active { display: block; }
+        .page-intro-bar {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.68rem;
+            color: rgba(56,189,248,0.6);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 10px 0 18px;
+            border-bottom: 1px solid rgba(56,189,248,0.1);
+            margin-bottom: 20px;
+        }
+
     </style>
 </head>
 
@@ -989,9 +1050,22 @@
       <div class="topbar-bottom-line"></div>
     </nav>
 
+
+    <!-- ===== PAGE NAVBAR ===== -->
+    <nav class="page-navbar" id="pageNavbar">
+        <button class="nav-btn active" id="nav-home"        onclick="showPage('home')">        <span class="nav-icon">&#127968;</span> Home</button>
+        <button class="nav-btn"        id="nav-location"    onclick="showPage('location')">    <span class="nav-icon">&#128205;</span> Location Profile</button>
+        <button class="nav-btn"        id="nav-livedata"    onclick="showPage('livedata')">    <span class="nav-icon">&#127780;&#65039;</span> Live Data</button>
+        <button class="nav-btn"        id="nav-coastalrisk" onclick="showPage('coastalrisk')"><span class="nav-icon">&#127754;</span> Coastal Risk</button>
+        <button class="nav-btn"        id="nav-ndgain"      onclick="showPage('ndgain')">      <span class="nav-icon">&#127758;</span> ND-GAIN &amp; Adaptation</button>
+        <button class="nav-btn"        id="nav-riskassess"  onclick="showPage('riskassess')">  <span class="nav-icon">&#9888;&#65039;</span> Risk Assessment</button>
+    </nav>
+
     <!-- ===== MAIN DASHBOARD ===== -->
     <main class="dashboard">
 
+        <!-- PAGE: HOME -->
+        <div class="page-section active" id="page-home">
         <!-- HEADER -->
         <header class="header-section">
             <div class="header-eyebrow" id="headerEyebrow">Global Coastal Risk Assessment System</div>
@@ -1022,10 +1096,14 @@
         <!-- ERROR / LOADER -->
         <div class="loader" id="loader">▸ FETCHING GEOGRAPHIC DATA &amp; RUNNING HASKELL ENGINE…</div>
         <div class="error-msg" id="errorMsg"></div>
+        </div><!-- /page-home -->
 
         <!-- RESULTS -->
-        <div class="results-dashboard" id="resultsDash">
+        <div id="resultsDash" style="display:none">
 
+        <!-- PAGE: LOCATION PROFILE -->
+        <div class="page-section" id="page-location">
+        <div class="page-intro-bar">&#128205; Location Profile &#8212; Static geographic &amp; demographic data</div>
             <!-- METRIC CARDS -->
             <div class="metrics-grid">
                 <div class="metric-card mc-lime">
@@ -1058,7 +1136,12 @@
                 </div>
             </div>
 
-            <div class="metrics-grid" id="weatherRow" style="display:none; margin-top:12px;">
+        </div><!-- /page-location -->
+
+        <!-- PAGE: LIVE DATA -->
+        <div class="page-section" id="page-livedata">
+        <div class="page-intro-bar">&#127780;&#65039; Live Data &#8212; Real-time atmospheric &amp; marine readings &#183; Open-Meteo</div>
+            <div class="metrics-grid" id="weatherRow" style="display:grid; margin-top:0;">
                 <div class="metric-card mc-weather">
                     <div class="metric-title">Temperature</div>
                     <div class="metric-value"><span id="resTemp">--</span></div>
@@ -1089,7 +1172,12 @@
                 </div>
             </div>
 
-            <div class="metrics-grid" id="geoRow" style="display:none; margin-top:12px;">
+        </div><!-- /page-livedata -->
+
+        <!-- PAGE: COASTAL RISK -->
+        <div class="page-section" id="page-coastalrisk">
+        <div class="page-intro-bar">&#127754; Coastal Risk &#8212; Geomorphology, shoreline dynamics &amp; composite CVI score</div>
+            <div class="metrics-grid" id="geoRow" style="display:grid; margin-top:0;">
                 <div class="metric-card mc-geo">
                     <div class="metric-title">Geomorphology</div>
                     <div class="metric-value" style="font-size:1rem; padding-top:4px;">
@@ -1175,6 +1263,11 @@
                 </div>
             </div>
 
+        </div><!-- /page-coastalrisk -->
+
+        <!-- PAGE: ND-GAIN -->
+        <div class="page-section" id="page-ndgain">
+        <div class="page-intro-bar">&#127758; ND-GAIN &amp; Adaptation &#8212; Notre Dame Global Adaptation Initiative &#183; 2023</div>
             <!-- ND-GAIN SECTION -->
             <div class="ndgain-section" id="ndgainSection">
 
@@ -1269,6 +1362,11 @@
 
             </div><!-- /ndgain-section -->
 
+        </div><!-- /page-ndgain -->
+
+        <!-- PAGE: RISK ASSESSMENT -->
+        <div class="page-section" id="page-riskassess">
+        <div class="page-intro-bar">&#9888;&#65039; Risk Assessment &#8212; Pattern engine output &amp; advisory directives</div>
             <!-- ANALYSIS GRID -->
             <div class="analysis-grid">
                 <div class="radar-panel">
@@ -1299,7 +1397,8 @@
                 <ul class="pattern-list" id="patternList"></ul>
             </div>
 
-        </div><!-- /results-dashboard -->
+        </div><!-- /page-riskassess -->
+        </div><!-- /resultsDash -->
     </main>
 
     <!-- FOOTER -->
@@ -1817,6 +1916,36 @@
             const finalCVIVal    = parseFloat(cvi.final_cvi);
             updateNDGainPanel(baseCVIVal, ndgainPayload, finalCVIVal);
         }
+
+        /* ===== PAGE NAVIGATION ===== */
+        const _PAGE_IDS = ['home','location','livedata','coastalrisk','ndgain','riskassess'];
+
+        function showPage(pageId) {
+            _PAGE_IDS.forEach(function(id) {
+                var sec = document.getElementById('page-' + id);
+                var btn = document.getElementById('nav-' + id);
+                if (sec) sec.classList.toggle('active', id === pageId);
+                if (btn) btn.classList.toggle('active', id === pageId);
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        /* After analysis: show resultsDash + nav to location page */
+        var _origRR = window.renderResults;
+        window.renderResults = function(data) {
+            if (typeof _origRR === 'function') _origRR(data);
+            var rd = document.getElementById('resultsDash');
+            if (rd) rd.style.display = 'block';
+            showPage('location');
+        };
+
+        /* Chip click navigates to home to show search */
+        var _origFillChip = window.fillChip;
+        window.fillChip = function(name) {
+            showPage('home');
+            if (typeof _origFillChip === 'function') _origFillChip(name);
+        };
+
     </script>
 
     <!-- ===== LEAFLET MAP VISUALIZATION FEATURE (additive — does not modify existing code) ===== -->
