@@ -1028,7 +1028,7 @@
 
       <div class="topbar-left">
         <div class="topbar-logo-block">
-          <div class="topbar-logo">CVI<span class="logo-slash">//</span>SYS</div>
+          <div class="topbar-logo">CVI</div>
         </div>
       </div>
 
@@ -1843,7 +1843,7 @@
             radarChartInstance = new Chart(ctx, {
                 type: 'radar',
                 data: {
-                    labels: ['Elevation Risk', 'SLR Rate', 'Shoreline Change', 'Tidal Range', 'Social Vulnerability', 'Geomorphology'],
+                    labels: ['Elevation Risk', 'SLR Rate', ['Shoreline', 'Change'], 'Tidal Range', ['Social', 'Vulnerability'], 'Geomorphology'],
                     datasets: [{
                         data: [
                             elevationRisk,
